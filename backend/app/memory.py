@@ -34,6 +34,9 @@ DEFAULT_MEMORY: dict[str, Any] = {
     },
     "facts": [],
     "recent_interactions": [],
+    "conversation": {
+        "turns": [],
+    },
 }
 
 
@@ -41,6 +44,7 @@ class MemoryStore:
     def __init__(self, settings: Settings):
         self.path = Path(settings.memory_path)
         self.recent_limit = settings.recent_memory_limit
+        self.conversation_limit = settings.conversation_turn_limit
         self.ensure_exists()
 
     def ensure_exists(self) -> None:
@@ -97,16 +101,21 @@ class MemoryStore:
             for fact in facts[:20]:
                 lines.append(f"- {fact}")
 
-        recent = memory.get("recent_interactions") or []
-        if self.recent_limit and recent:
-            lines.append("Recent interactions:")
-            for item in recent[-self.recent_limit :]:
-                question = item.get("question", "")
-                answer = item.get("answer", "")
-                lines.append(f"- Q: {question}")
-                lines.append(f"  A: {answer}")
-
         return "\n".join(line for line in lines if line).strip()
+
+    def get_conversation_messages(self) -> list[dict[str, str]]:
+        memory = self.read()
+        conversation = memory.setdefault("conversation", {})
+        turns = conversation.setdefault("turns", [])
+        clean_turns = []
+
+        for turn in turns[-self.conversation_limit :] if self.conversation_limit else []:
+            role = turn.get("role")
+            content = turn.get("content")
+            if role in {"user", "assistant"} and isinstance(content, str) and content.strip():
+                clean_turns.append({"role": role, "content": content.strip()})
+
+        return clean_turns
 
     def save_interaction(self, question: str, answer: str) -> None:
         memory = self.read()
@@ -120,4 +129,24 @@ class MemoryStore:
         )
         if self.recent_limit:
             memory["recent_interactions"] = interactions[-self.recent_limit :]
+
+        conversation = memory.setdefault("conversation", {})
+        turns = conversation.setdefault("turns", [])
+        turns.extend(
+            [
+                {
+                    "role": "user",
+                    "content": question,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                },
+                {
+                    "role": "assistant",
+                    "content": answer,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                },
+            ]
+        )
+        if self.conversation_limit:
+            conversation["turns"] = turns[-self.conversation_limit :]
+
         self.write(memory)

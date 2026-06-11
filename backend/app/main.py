@@ -65,7 +65,11 @@ async def ask(audio: UploadFile = File(...)) -> dict[str, str]:
         uploaded_path = await save_upload(audio)
         wav_path = convert_to_wav(uploaded_path)
         question = stt.transcribe(wav_path)
-        answer = llm.answer(question, memory.build_context())
+        answer = llm.answer(
+            question,
+            memory.build_context(),
+            memory.get_conversation_messages(),
+        )
         memory.save_interaction(question, answer)
         answer_audio_path = tts.synthesize(answer)
 

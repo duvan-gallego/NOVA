@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     hf_home: str = str(Path(__file__).resolve().parents[1] / "models" / "huggingface")
     memory_path: str = str(Path(__file__).resolve().parents[1] / "data" / "memory.json")
     recent_memory_limit: int = Field(default=8, ge=0)
+    conversation_turn_limit: int = Field(default=10, ge=0)
 
 
 @lru_cache

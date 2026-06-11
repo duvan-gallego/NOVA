@@ -1,12 +1,20 @@
 import json
+from typing import Optional
 from urllib import request
 from urllib.error import HTTPError, URLError
 
 from app.config import Settings
 
+ChatMessage = dict[str, str]
+
 
 class LLMAdapter:
-    def answer(self, question: str, memory_context: str = "") -> str:
+    def answer(
+        self,
+        question: str,
+        memory_context: str = "",
+        conversation: Optional[list[ChatMessage]] = None,
+    ) -> str:
         raise NotImplementedError
 
 
@@ -14,15 +22,21 @@ class OpenAICompatibleLLM(LLMAdapter):
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    def answer(self, question: str, memory_context: str = "") -> str:
+    def answer(
+        self,
+        question: str,
+        memory_context: str = "",
+        conversation: Optional[list[ChatMessage]] = None,
+    ) -> str:
         system_prompt = self._build_system_prompt(memory_context)
+        messages = [{"role": "system", "content": system_prompt}]
+        messages.extend(conversation or [])
+        messages.append({"role": "user", "content": question})
+
         payload = json.dumps(
             {
                 "model": self.settings.llm_model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": question},
-                ],
+                "messages": messages,
                 "temperature": 0.4,
                 "max_tokens": self.settings.llm_max_tokens,
                 "stream": False,

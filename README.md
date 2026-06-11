@@ -77,3 +77,11 @@ backend/data/memory.json
 ```
 
 Edit that file directly to update family notes, child context, preferences, facts, or the current mission. NOVA also appends recent interactions there automatically.
+
+The same file also keeps the active conversation window under:
+
+```txt
+conversation.turns
+```
+
+That lets short follow-up answers refer to what NOVA just asked.
