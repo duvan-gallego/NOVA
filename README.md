@@ -38,6 +38,17 @@ Recommended local services:
 - LLM: OpenAI-compatible local server at `http://192.168.68.67:1234/v1`
 - TTS: Kokoro with a Spanish voice
 
+## Local Launch
+
+After backend and frontend dependencies are installed, start both servers from the repo root:
+
+```bash
+pnpm dev
+```
+
+This runs the FastAPI backend at `http://127.0.0.1:8000` and the Vite frontend at `http://127.0.0.1:5173`.
+Press `Ctrl+C` once to stop both.
+
 ## Frontend
 
 ```bash

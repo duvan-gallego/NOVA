@@ -1,0 +1,12 @@
+{
+  "name": "nova",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:frontend": "pnpm --dir frontend dev",
+    "dev:backend": "node scripts/dev-backend.mjs"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
