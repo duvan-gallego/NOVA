@@ -5,6 +5,7 @@ import { NovaCharacter } from "./components/NovaCharacter.jsx";
 
 const API_URL = (import.meta.env.VITE_NOVA_API_URL ?? "").replace(/\/$/, "");
 const FOLLOW_UP_TIMEOUT_MS = 9000;
+const WAKE_RESTART_DELAY_MS = 450;
 const SILENT_AUDIO_URL =
   "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
 const THINKING_AUDIO_URLS = [
@@ -67,6 +68,7 @@ export function App() {
   const statusRef = useRef(status);
   const voiceModeRef = useRef(voiceMode);
   const followUpTimerRef = useRef(null);
+  const wakeRestartTimerRef = useRef(null);
   const lastThinkingIndexRef = useRef(-1);
   const lastWakeIndexRef = useRef(-1);
   const lastRecordingIndexRef = useRef(-1);
@@ -86,8 +88,8 @@ export function App() {
   useEffect(() => {
     voiceModeRef.current = voiceMode;
     if (voiceMode) {
-      stopSpeechRecognition();
-      clearFollowUpTimer();
+      stopSpeechRecognition({ clearRestart: true });
+      clearTimers();
       setVoiceStatus("Activando...");
       playCue(WAKE_AUDIO_URLS, lastWakeIndexRef).finally(() => {
         if (voiceModeRef.current && statusRef.current === "idle") {
@@ -95,14 +97,14 @@ export function App() {
         }
       });
     } else {
-      stopSpeechRecognition();
-      clearFollowUpTimer();
+      stopSpeechRecognition({ clearRestart: true });
+      clearTimers();
       setVoiceStatus("");
     }
 
     return () => {
-      stopSpeechRecognition();
-      clearFollowUpTimer();
+      stopSpeechRecognition({ clearRestart: true });
+      clearTimers();
     };
   }, [voiceMode]);
 
@@ -112,8 +114,8 @@ export function App() {
     setQuestion("");
     setAnswer("");
     revokeAudioUrl();
-    stopSpeechRecognition();
-    clearFollowUpTimer();
+    stopSpeechRecognition({ clearRestart: true });
+    clearTimers();
     setVoiceStatus("Te escucho");
 
     try {
@@ -202,8 +204,8 @@ export function App() {
       return;
     }
 
-    stopSpeechRecognition();
-    clearFollowUpTimer();
+    stopSpeechRecognition({ clearRestart: true });
+    clearTimers();
     setError("");
     setQuestion("");
     setAnswer("");
@@ -246,8 +248,8 @@ export function App() {
 
   function playAudio(url = audioUrl) {
     if (!url) return;
-    stopSpeechRecognition();
-    clearFollowUpTimer();
+    stopSpeechRecognition({ clearRestart: true });
+    clearTimers();
 
     const audio = audioRef.current;
     if (!audio) return;
@@ -357,8 +359,8 @@ export function App() {
   function startWakeListening() {
     if (!voiceModeRef.current || !voiceAvailable || statusRef.current !== "idle") return;
 
-    clearFollowUpTimer();
-    setVoiceStatus("Di: Hola NOVA");
+    clearTimers();
+    setVoiceStatus("Escuchando: Hola NOVA");
     startSpeechRecognition({
       mode: "wake",
       continuous: true,
@@ -381,7 +383,7 @@ export function App() {
       },
       onEnd: () => {
         if (voiceModeRef.current && statusRef.current === "idle") {
-          startWakeListening();
+          scheduleWakeListening();
         }
       },
     });
@@ -389,12 +391,14 @@ export function App() {
 
   function startFollowUpListening() {
     if (!voiceModeRef.current || !voiceAvailable || statusRef.current !== "idle") return;
+    clearWakeRestartTimer();
     setVoiceStatus("Puedes preguntar otra cosa");
     startCommandListening(FOLLOW_UP_TIMEOUT_MS, () => startWakeListening());
   }
 
   function startCommandListening(timeoutMs, onTimeout = () => startWakeListening()) {
     if (!voiceModeRef.current || !voiceAvailable || statusRef.current !== "idle") return;
+    clearWakeRestartTimer();
 
     startSpeechRecognition({
       mode: "command",
@@ -412,7 +416,7 @@ export function App() {
   }
 
   function startSpeechRecognition({ mode, continuous, timeoutMs, onSpeech, onEnd }) {
-    stopSpeechRecognition();
+    stopSpeechRecognition({ clearRestart: mode !== "wake" });
     clearFollowUpTimer();
 
     const SpeechRecognition = getSpeechRecognition();
@@ -440,6 +444,10 @@ export function App() {
         setVoiceMode(false);
         return;
       }
+      if (mode === "wake") {
+        scheduleWakeListening(900);
+        return;
+      }
       setVoiceStatus(mode === "wake" ? "Di: Hola NOVA" : "Te escucho");
     };
 
@@ -453,6 +461,9 @@ export function App() {
       recognition.start();
     } catch {
       recognitionRef.current = null;
+      if (mode === "wake") {
+        scheduleWakeListening(900);
+      }
     }
 
     if (timeoutMs) {
@@ -463,7 +474,20 @@ export function App() {
     }
   }
 
-  function stopSpeechRecognition() {
+  function scheduleWakeListening(delayMs = WAKE_RESTART_DELAY_MS) {
+    if (wakeRestartTimerRef.current || !voiceModeRef.current || statusRef.current !== "idle") return;
+    wakeRestartTimerRef.current = window.setTimeout(() => {
+      wakeRestartTimerRef.current = null;
+      if (voiceModeRef.current && statusRef.current === "idle" && !recognitionRef.current) {
+        startWakeListening();
+      }
+    }, delayMs);
+  }
+
+  function stopSpeechRecognition({ clearRestart = false } = {}) {
+    if (clearRestart) {
+      clearWakeRestartTimer();
+    }
     const recognition = recognitionRef.current;
     recognitionRef.current = null;
     if (recognition) {
@@ -477,6 +501,18 @@ export function App() {
       window.clearTimeout(followUpTimerRef.current);
       followUpTimerRef.current = null;
     }
+  }
+
+  function clearWakeRestartTimer() {
+    if (wakeRestartTimerRef.current) {
+      window.clearTimeout(wakeRestartTimerRef.current);
+      wakeRestartTimerRef.current = null;
+    }
+  }
+
+  function clearTimers() {
+    clearFollowUpTimer();
+    clearWakeRestartTimer();
   }
 
   function unlockAudioPlayback() {
