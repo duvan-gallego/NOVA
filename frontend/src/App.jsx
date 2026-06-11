@@ -7,6 +7,28 @@ const API_URL = (import.meta.env.VITE_NOVA_API_URL ?? "").replace(/\/$/, "");
 const FOLLOW_UP_TIMEOUT_MS = 9000;
 const SILENT_AUDIO_URL =
   "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
+const THINKING_AUDIO_URLS = [
+  "/audio/thinking/dejame-buscar-eso.wav",
+  "/audio/thinking/buena-pregunta.wav",
+  "/audio/thinking/voy-a-pensarlo.wav",
+  "/audio/thinking/un-momento.wav",
+  "/audio/thinking/estoy-explorando.wav",
+  "/audio/thinking/vamos-a-ver.wav",
+  "/audio/thinking/estoy-investigando.wav",
+  "/audio/thinking/dame-un-segundito.wav",
+  "/audio/thinking/que-interesante.wav",
+  "/audio/thinking/voy-a-revisarlo.wav",
+  "/audio/thinking/ya-casi-lo-tengo.wav",
+  "/audio/thinking/pensemos-juntos.wav",
+  "/audio/thinking/me-gusta-esa-pregunta.wav",
+  "/audio/thinking/estoy-conectando-ideas.wav",
+  "/audio/thinking/dejame-imaginarlo.wav",
+  "/audio/thinking/buscando-pistas.wav",
+  "/audio/thinking/que-curioso.wav",
+  "/audio/thinking/exploremos-eso.wav",
+  "/audio/thinking/tengo-una-idea.wav",
+  "/audio/thinking/voy-paso-a-paso.wav",
+];
 const WAKE_PHRASES = ["hola nova", "oye nova", "nova"];
 
 export function App() {
@@ -24,6 +46,7 @@ export function App() {
   const statusRef = useRef(status);
   const voiceModeRef = useRef(voiceMode);
   const followUpTimerRef = useRef(null);
+  const lastThinkingIndexRef = useRef(-1);
 
   const isRecording = status === "recording";
   const isProcessing = status === "processing";
@@ -95,6 +118,8 @@ export function App() {
   function stopRecording() {
     if (mediaRecorderRef.current?.state === "recording") {
       setStatus("processing");
+      setVoiceStatus("Pensando...");
+      playThinkingPhrase();
       mediaRecorderRef.current.stop();
     }
   }
@@ -124,9 +149,11 @@ export function App() {
       setAudioUrl(nextAudioUrl);
       playAudio(nextAudioUrl);
       setStatus("playing");
+      setVoiceStatus("");
     } catch (err) {
       setError(err.message);
       setStatus("idle");
+      setVoiceStatus("");
       if (voiceModeRef.current) {
         startWakeListening();
       }
@@ -147,6 +174,7 @@ export function App() {
     revokeAudioUrl();
     setStatus("processing");
     setVoiceStatus("Pensando...");
+    playThinkingPhrase();
 
     try {
       const response = await fetch(`${API_URL}/ask-text`, {
@@ -171,6 +199,7 @@ export function App() {
     } catch (err) {
       setError(err.message);
       setStatus("idle");
+      setVoiceStatus("");
       if (voiceModeRef.current) {
         startWakeListening();
       }
@@ -200,6 +229,23 @@ export function App() {
       if (voiceModeRef.current) {
         startFollowUpListening();
       }
+    });
+  }
+
+  function playThinkingPhrase() {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const index = pickThinkingAudioIndex(lastThinkingIndexRef.current);
+    lastThinkingIndexRef.current = index;
+
+    audio.pause();
+    audio.src = THINKING_AUDIO_URLS[index];
+    audio.muted = false;
+    audio.currentTime = 0;
+    audio.onended = null;
+    audio.play().catch(() => {
+      // iPadOS may still require a direct user gesture in some paths.
     });
   }
 
@@ -439,7 +485,7 @@ export function App() {
 
 function buttonLabel(status) {
   if (status === "recording") return "Detener";
-  if (status === "processing") return "Mmm...";
+  if (status === "processing") return "Pensando";
   if (status === "playing") return "¡Ya sé!";
   return "Hablar";
 }
@@ -461,7 +507,7 @@ function getCharacterEmotion(status, answer) {
 
 function statusLabel(mode) {
   if (mode === "listening") return "Te escucho";
-  if (mode === "thinking") return "Mmm...";
+  if (mode === "thinking") return "Pensando";
   if (mode === "speaking") return "¡Ya sé!";
   if (mode === "error") return "Ups, intentemos otra vez";
   return "Toca y pregunta";
@@ -525,6 +571,16 @@ function getSpeechRecognition() {
 
 function isSpeechRecognitionAvailable() {
   return Boolean(getSpeechRecognition());
+}
+
+function pickThinkingAudioIndex(previousIndex) {
+  if (THINKING_AUDIO_URLS.length <= 1) return 0;
+
+  let nextIndex = Math.floor(Math.random() * THINKING_AUDIO_URLS.length);
+  if (nextIndex === previousIndex) {
+    nextIndex = (nextIndex + 1) % THINKING_AUDIO_URLS.length;
+  }
+  return nextIndex;
 }
 
 function parseWakeQuestion(text) {
