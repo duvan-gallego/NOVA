@@ -43,3 +43,5 @@ class FasterWhisperSpeechToText(SpeechToTextAdapter):
             raise RuntimeError("No pude transcribir la pregunta. Intenta grabarla de nuevo.")
         return text
 
+    def warmup(self) -> None:
+        _ = self.model

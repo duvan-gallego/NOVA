@@ -1,3 +1,6 @@
+import logging
+from time import perf_counter
+
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,6 +11,7 @@ from app.audio import cleanup_files, convert_to_wav, encode_audio_base64, save_u
 from app.config import get_settings
 
 settings = get_settings()
+logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(title=settings.app_name)
 app.add_middleware(
@@ -26,6 +30,22 @@ app.add_middleware(
 stt = FasterWhisperSpeechToText(settings)
 llm = OpenAICompatibleLLM(settings)
 tts = KokoroTextToSpeech(settings)
+
+
+@app.on_event("startup")
+def warmup_models() -> None:
+    warmup_start = perf_counter()
+    logger.info("Warming up NOVA local models...")
+
+    stt_start = perf_counter()
+    stt.warmup()
+    logger.info("Whisper warmup finished in %.2fs", perf_counter() - stt_start)
+
+    tts_start = perf_counter()
+    tts.warmup()
+    logger.info("Kokoro warmup finished in %.2fs", perf_counter() - tts_start)
+
+    logger.info("NOVA warmup finished in %.2fs", perf_counter() - warmup_start)
 
 
 @app.get("/health")

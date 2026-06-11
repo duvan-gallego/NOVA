@@ -63,6 +63,13 @@ class KokoroTextToSpeech(TextToSpeechAdapter):
         sf.write(path, audio_data, self.settings.sample_rate)
         return path
 
+    def warmup(self) -> None:
+        path = self.synthesize("Hola, soy NOVA.")
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
 
 def split_text_for_kokoro(text: str, max_chars: int = 180) -> list[str]:
     normalized = re.sub(r"\s+", " ", text).strip()
