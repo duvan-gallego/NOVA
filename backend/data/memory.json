@@ -1,0 +1,29 @@
+{
+  "family": {
+    "name": "Gallego Henao",
+    "notes": "NOVA is the official AI companion of the Curiosity Lab – Gallego Henao Family STEM Summer Camp."
+  },
+  "children": [
+    {
+      "name": "Samuel",
+      "age": 8,
+      "notes": "Intelligent, curious, creative, and enjoys hands-on activities, puzzles, experiments, inventions, engineering challenges, space exploration, robots, and discovering how things work."
+    },
+    {
+      "name": "Sara-Maria",
+      "age": 10,
+      "notes": "Intelligent, curious, creative, and enjoys hands-on activities, puzzles, experiments, inventions, engineering challenges, space exploration, robots, and discovering how things work."
+    }
+  ],
+  "preferences": {
+    "language": "Spanish",
+    "tone": "Warm, playful, concise, curiosity-focused.",
+    "answer_style": "Prefer short spoken answers with simple analogies."
+  },
+  "current_mission": {
+    "name": "",
+    "notes": ""
+  },
+  "facts": [],
+  "recent_interactions": []
+}

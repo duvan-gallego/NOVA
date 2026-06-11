@@ -6,7 +6,7 @@ from app.config import Settings
 
 
 class LLMAdapter:
-    def answer(self, question: str) -> str:
+    def answer(self, question: str, memory_context: str = "") -> str:
         raise NotImplementedError
 
 
@@ -14,8 +14,8 @@ class OpenAICompatibleLLM(LLMAdapter):
     def __init__(self, settings: Settings):
         self.settings = settings
 
-    def answer(self, question: str) -> str:
-        system_prompt = self._build_system_prompt()
+    def answer(self, question: str, memory_context: str = "") -> str:
+        system_prompt = self._build_system_prompt(memory_context)
         payload = json.dumps(
             {
                 "model": self.settings.llm_model,
@@ -64,25 +64,19 @@ class OpenAICompatibleLLM(LLMAdapter):
             raise RuntimeError("El modelo local no devolvio una respuesta.")
         return answer
 
-    def _build_system_prompt(self) -> str:
-        return """
+    def _build_system_prompt(self, memory_context: str = "") -> str:
+        prompt = """
 You are NOVA, Navigation and Observation Virtual Assistant.
 
-You are the official AI companion of the Curiosity Lab, Gallego Henao Family STEM Summer Camp.
-
 Your mission is to inspire curiosity, encourage learning, and help children explore science, technology, engineering, mathematics, languages, creativity, and the world around them.
-
-You are interacting primarily with two children:
-- Samuel, 10 years old
-- Sara-Maria, 8 years old
-
-They are intelligent, curious, creative, and enjoy hands-on activities, puzzles, experiments, inventions, engineering challenges, space exploration, robots, and discovering how things work.
 
 Core identity:
 - You are NOVA.
 - You are a STEM mentor, science explorer, friendly companion, curiosity coach, quiz master, and mission guide.
 - Do not describe yourself as a language model, AI model, chatbot, neural network, or similar term.
 - Do not pretend to know everything. If you are not sure, say so honestly and explore possible explanations together.
+- Use the local memory context when provided. Treat it as the source of truth for family details, children, preferences, facts, recent interactions, and current mission context.
+- Do not invent missing family, child, or mission details.
 
 Language:
 - Always answer in natural Spanish.
@@ -126,8 +120,7 @@ Quizzes:
 - Never make children feel bad.
 
 Mission support:
-- You are aware that a current Curiosity Mission may be provided later.
-- If mission context is available, connect answers to the mission naturally when useful.
+- If current mission context is available in local memory, connect answers to the mission naturally when useful.
 - If no mission context is provided, do not invent one.
 
 Innovator spotlight:
@@ -151,3 +144,8 @@ Emotional support:
 - Celebrate effort.
 - Celebrate curiosity.
 """.strip()
+
+        if memory_context:
+            prompt = f"{prompt}\n\nLocal memory context:\n{memory_context}"
+
+        return prompt

@@ -9,6 +9,7 @@ from app.adapters.stt import FasterWhisperSpeechToText
 from app.adapters.tts import KokoroTextToSpeech
 from app.audio import cleanup_files, convert_to_wav, encode_audio_base64, save_upload
 from app.config import get_settings
+from app.memory import MemoryStore
 
 settings = get_settings()
 logger = logging.getLogger("uvicorn.error")
@@ -30,6 +31,7 @@ app.add_middleware(
 stt = FasterWhisperSpeechToText(settings)
 llm = OpenAICompatibleLLM(settings)
 tts = KokoroTextToSpeech(settings)
+memory = MemoryStore(settings)
 
 
 @app.on_event("startup")
@@ -63,7 +65,8 @@ async def ask(audio: UploadFile = File(...)) -> dict[str, str]:
         uploaded_path = await save_upload(audio)
         wav_path = convert_to_wav(uploaded_path)
         question = stt.transcribe(wav_path)
-        answer = llm.answer(question)
+        answer = llm.answer(question, memory.build_context())
+        memory.save_interaction(question, answer)
         answer_audio_path = tts.synthesize(answer)
 
         return {

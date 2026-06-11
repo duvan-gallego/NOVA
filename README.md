@@ -67,3 +67,13 @@ NOVA_KOKORO_VOICE=ef_dora
 ```
 
 `es-419` means neutral Latin American Spanish.
+
+## Memory
+
+NOVA uses a tiny local JSON memory file:
+
+```txt
+backend/data/memory.json
+```
+
+Edit that file directly to update family notes, child context, preferences, facts, or the current mission. NOVA also appends recent interactions there automatically.
