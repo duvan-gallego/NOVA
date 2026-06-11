@@ -59,6 +59,7 @@ pnpm dev
 
 Then open the HTTPS network URL shown by Vite, such as `https://YOUR_MAC_LOCAL_IP:5173`.
 If the iPad says the connection is not private, install and trust `frontend/certs/nova-dev.crt` on the iPad.
+For the most app-like iPad view, open the HTTPS URL in Safari, tap Share, choose Add to Home Screen, and launch NOVA from the new Home Screen icon.
 
 ## Frontend
 

@@ -1,0 +1,10 @@
+{
+  "name": "NOVA Curiosity Lab",
+  "short_name": "NOVA",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fbff",
+  "theme_color": "#001f4e",
+  "description": "Local-first voice assistant for the Curiosity Lab."
+}

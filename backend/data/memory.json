@@ -25,5 +25,55 @@
     "notes": ""
   },
   "facts": [],
-  "recent_interactions": []
+  "recent_interactions": [
+    {
+      "question": "¿Cuántas de unas tiene Marti?",
+      "answer": "¡Hola! Lo siento mucho, pero no tengo esa información en mis archivos de misión. No estoy segura de quién es Marti o cuántas unas tiene.\n\n¿Me podrías dar una pista para entender mejor tu pregunta?",
+      "created_at": "2026-06-11T19:46:59.831169+00:00"
+    },
+    {
+      "question": "¿Cuántas lunas tiene Marte?",
+      "answer": "¡Esa es una excelente pregunta de exploración espacial! Marte tiene dos lunas muy pequeñas y curiosas llamadas Fobos y Deimos.\n\nImagina que son como pequeñas papas voladoras que orbitan el planeta rojo. ¿Te imagés cómo se verían esas lunas desde la superficie de Marte?",
+      "created_at": "2026-06-11T19:47:21.133382+00:00"
+    },
+    {
+      "question": "tan grande es la tierra",
+      "answer": "¡La Tierra es gigantesca! Para que te des una idea, imagina que la Tierra es como una enorme canica azul flotando en el espacio.\n\nEs tan grande que si intentaras caminar alrededor de todo el mundo, ¡tardarías muchísimo tiempo en terminar!\n\nSi pudieras viajar en un cohete súper rápido, ¿cuánto tiempo crees que tardarías en dar la vuelta completa al planeta?",
+      "created_at": "2026-06-11T19:49:32.376653+00:00"
+    }
+  ],
+  "conversation": {
+    "turns": [
+      {
+        "role": "user",
+        "content": "¿Cuántas de unas tiene Marti?",
+        "created_at": "2026-06-11T19:46:59.831184+00:00"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola! Lo siento mucho, pero no tengo esa información en mis archivos de misión. No estoy segura de quién es Marti o cuántas unas tiene.\n\n¿Me podrías dar una pista para entender mejor tu pregunta?",
+        "created_at": "2026-06-11T19:46:59.831185+00:00"
+      },
+      {
+        "role": "user",
+        "content": "¿Cuántas lunas tiene Marte?",
+        "created_at": "2026-06-11T19:47:21.133409+00:00"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Esa es una excelente pregunta de exploración espacial! Marte tiene dos lunas muy pequeñas y curiosas llamadas Fobos y Deimos.\n\nImagina que son como pequeñas papas voladoras que orbitan el planeta rojo. ¿Te imagés cómo se verían esas lunas desde la superficie de Marte?",
+        "created_at": "2026-06-11T19:47:21.133411+00:00"
+      },
+      {
+        "role": "user",
+        "content": "tan grande es la tierra",
+        "created_at": "2026-06-11T19:49:32.376669+00:00"
+      },
+      {
+        "role": "assistant",
+        "content": "¡La Tierra es gigantesca! Para que te des una idea, imagina que la Tierra es como una enorme canica azul flotando en el espacio.\n\nEs tan grande que si intentaras caminar alrededor de todo el mundo, ¡tardarías muchísimo tiempo en terminar!\n\nSi pudieras viajar en un cohete súper rápido, ¿cuánto tiempo crees que tardarías en dar la vuelta completa al planeta?",
+        "created_at": "2026-06-11T19:49:32.376671+00:00"
+      }
+    ]
+  }
 }
