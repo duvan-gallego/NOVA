@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "audio:generate": "env PYTHONPYCACHEPREFIX=/Users/duvan/Projects/NOVA/backend/.pycache backend/.venv/bin/python scripts/generate-thinking-audio.py",
     "audio:thinking": "env PYTHONPYCACHEPREFIX=/Users/duvan/Projects/NOVA/backend/.pycache backend/.venv/bin/python scripts/generate-thinking-audio.py",
     "dev": "node scripts/dev.mjs",
     "dev:cert": "node scripts/create-dev-cert.mjs",

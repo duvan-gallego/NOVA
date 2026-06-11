@@ -29,6 +29,27 @@ const THINKING_AUDIO_URLS = [
   "/audio/thinking/tengo-una-idea.wav",
   "/audio/thinking/voy-paso-a-paso.wav",
 ];
+const WAKE_AUDIO_URLS = [
+  "/audio/wake/aqui-estoy.wav",
+  "/audio/wake/hola-explorador.wav",
+  "/audio/wake/lista-para-escuchar.wav",
+  "/audio/wake/te-escucho.wav",
+  "/audio/wake/dime-tu-pregunta.wav",
+];
+const RECORDING_AUDIO_URLS = [
+  "/audio/recording/adelante.wav",
+  "/audio/recording/cuentame.wav",
+  "/audio/recording/dime.wav",
+  "/audio/recording/te-escucho.wav",
+  "/audio/recording/preguntame.wav",
+];
+const RETRY_AUDIO_URLS = [
+  "/audio/retry/no-alcance-a-escucharte.wav",
+  "/audio/retry/puedes-repetirlo.wav",
+  "/audio/retry/intentemos-otra-vez.wav",
+  "/audio/retry/habla-un-poquito-mas-fuerte.wav",
+  "/audio/retry/probemos-de-nuevo.wav",
+];
 const WAKE_PHRASES = ["hola nova", "oye nova", "nova"];
 
 export function App() {
@@ -47,6 +68,9 @@ export function App() {
   const voiceModeRef = useRef(voiceMode);
   const followUpTimerRef = useRef(null);
   const lastThinkingIndexRef = useRef(-1);
+  const lastWakeIndexRef = useRef(-1);
+  const lastRecordingIndexRef = useRef(-1);
+  const lastRetryIndexRef = useRef(-1);
 
   const isRecording = status === "recording";
   const isProcessing = status === "processing";
@@ -62,7 +86,14 @@ export function App() {
   useEffect(() => {
     voiceModeRef.current = voiceMode;
     if (voiceMode) {
-      startWakeListening();
+      stopSpeechRecognition();
+      clearFollowUpTimer();
+      setVoiceStatus("Activando...");
+      playCue(WAKE_AUDIO_URLS, lastWakeIndexRef).finally(() => {
+        if (voiceModeRef.current && statusRef.current === "idle") {
+          startWakeListening();
+        }
+      });
     } else {
       stopSpeechRecognition();
       clearFollowUpTimer();
@@ -83,6 +114,7 @@ export function App() {
     revokeAudioUrl();
     stopSpeechRecognition();
     clearFollowUpTimer();
+    setVoiceStatus("Te escucho");
 
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -91,6 +123,7 @@ export function App() {
         );
       }
 
+      await playCue(RECORDING_AUDIO_URLS, lastRecordingIndexRef, { maxWaitMs: 1600 });
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorderOptions = getRecorderOptions();
       const recorder = new MediaRecorder(stream, recorderOptions);
@@ -112,6 +145,7 @@ export function App() {
     } catch (err) {
       setError(getRecorderErrorMessage(err));
       setStatus("idle");
+      setVoiceStatus("");
     }
   }
 
@@ -154,9 +188,11 @@ export function App() {
       setError(err.message);
       setStatus("idle");
       setVoiceStatus("");
-      if (voiceModeRef.current) {
-        startWakeListening();
-      }
+      playRetryCue(err.message).finally(() => {
+        if (voiceModeRef.current) {
+          startWakeListening();
+        }
+      });
     }
   }
 
@@ -200,9 +236,11 @@ export function App() {
       setError(err.message);
       setStatus("idle");
       setVoiceStatus("");
-      if (voiceModeRef.current) {
-        startWakeListening();
-      }
+      playRetryCue(err.message).finally(() => {
+        if (voiceModeRef.current) {
+          startWakeListening();
+        }
+      });
     }
   }
 
@@ -236,7 +274,7 @@ export function App() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const index = pickThinkingAudioIndex(lastThinkingIndexRef.current);
+    const index = pickAudioIndex(THINKING_AUDIO_URLS, lastThinkingIndexRef.current);
     lastThinkingIndexRef.current = index;
 
     audio.pause();
@@ -247,6 +285,52 @@ export function App() {
     audio.play().catch(() => {
       // iPadOS may still require a direct user gesture in some paths.
     });
+  }
+
+  function playCue(urls, lastIndexRef, options = {}) {
+    const audio = audioRef.current;
+    if (!audio || !urls.length) return Promise.resolve();
+
+    const index = pickAudioIndex(urls, lastIndexRef.current);
+    lastIndexRef.current = index;
+
+    audio.pause();
+    audio.src = urls[index];
+    audio.muted = false;
+    audio.currentTime = 0;
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        audio.pause();
+        audio.onended = null;
+        audio.onerror = null;
+        resolve();
+      };
+
+      const timeout = window.setTimeout(finish, options.maxWaitMs ?? 2400);
+      audio.onended = () => {
+        window.clearTimeout(timeout);
+        finish();
+      };
+      audio.onerror = () => {
+        window.clearTimeout(timeout);
+        finish();
+      };
+      audio.play().catch(() => {
+        window.clearTimeout(timeout);
+        finish();
+      });
+    });
+  }
+
+  function playRetryCue(message) {
+    if (!shouldPlayRetryCue(message)) {
+      return Promise.resolve();
+    }
+    return playCue(RETRY_AUDIO_URLS, lastRetryIndexRef);
   }
 
   function revokeAudioUrl() {
@@ -289,7 +373,11 @@ export function App() {
         }
 
         setVoiceStatus("Te escucho");
-        startCommandListening(FOLLOW_UP_TIMEOUT_MS);
+        playCue(WAKE_AUDIO_URLS, lastWakeIndexRef).finally(() => {
+          if (voiceModeRef.current && statusRef.current === "idle") {
+            startCommandListening(FOLLOW_UP_TIMEOUT_MS);
+          }
+        });
       },
       onEnd: () => {
         if (voiceModeRef.current && statusRef.current === "idle") {
@@ -573,14 +661,24 @@ function isSpeechRecognitionAvailable() {
   return Boolean(getSpeechRecognition());
 }
 
-function pickThinkingAudioIndex(previousIndex) {
-  if (THINKING_AUDIO_URLS.length <= 1) return 0;
+function pickAudioIndex(urls, previousIndex) {
+  if (urls.length <= 1) return 0;
 
-  let nextIndex = Math.floor(Math.random() * THINKING_AUDIO_URLS.length);
+  let nextIndex = Math.floor(Math.random() * urls.length);
   if (nextIndex === previousIndex) {
-    nextIndex = (nextIndex + 1) % THINKING_AUDIO_URLS.length;
+    nextIndex = (nextIndex + 1) % urls.length;
   }
   return nextIndex;
+}
+
+function shouldPlayRetryCue(message = "") {
+  const normalized = normalizeSpeech(message);
+  return (
+    normalized.includes("transcribir") ||
+    normalized.includes("escuchar") ||
+    normalized.includes("intenta") ||
+    normalized.includes("microfono")
+  );
 }
 
 function parseWakeQuestion(text) {
