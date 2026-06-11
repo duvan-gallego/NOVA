@@ -1,6 +1,15 @@
 :root {
-  color: #17211c;
-  background: #f7f5eb;
+  color: #001f4e;
+  background: #f8fbff;
+  --camp-navy: #001f4e;
+  --camp-blue: #006fbd;
+  --camp-sky: #18a8c5;
+  --camp-lime: #72bf13;
+  --camp-green: #45a90d;
+  --camp-yellow: #ffbf18;
+  --camp-orange: #ff7300;
+  --camp-red: #ff2d20;
+  --camp-purple: #7e42a8;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -32,26 +41,39 @@ button {
 
 .app-shell {
   background:
-    radial-gradient(circle at 50% 38%, rgba(71, 204, 191, 0.28), transparent 28%),
-    radial-gradient(circle at 28% 22%, rgba(255, 210, 97, 0.26), transparent 22%),
-    radial-gradient(circle at 78% 78%, rgba(122, 144, 212, 0.18), transparent 30%),
-    linear-gradient(145deg, #fbf7e8 0%, #eaf4ed 50%, #eaf0fb 100%);
+    radial-gradient(circle at 50% 38%, rgba(24, 168, 197, 0.24), transparent 28%),
+    radial-gradient(circle at 20% 20%, rgba(255, 191, 24, 0.28), transparent 20%),
+    radial-gradient(circle at 80% 74%, rgba(114, 191, 19, 0.18), transparent 24%),
+    radial-gradient(circle at 74% 22%, rgba(255, 115, 0, 0.14), transparent 22%),
+    linear-gradient(145deg, #ffffff 0%, #effcff 48%, #f4f8ff 100%);
   min-height: 100vh;
   overflow: hidden;
   position: relative;
 }
 
-.app-shell::before {
-  background:
-    linear-gradient(rgba(24, 77, 71, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(24, 77, 71, 0.03) 1px, transparent 1px);
-  background-size: 44px 44px;
+.app-shell::before,
+.app-shell::after {
   content: "";
   inset: 0;
-  mask-image: radial-gradient(circle at center, black, transparent 76%);
-  opacity: 0.55;
   pointer-events: none;
   position: absolute;
+}
+
+.app-shell::before {
+  background:
+    radial-gradient(circle, rgba(255, 191, 24, 0.46) 0 5px, transparent 6px) 9% 30% / 120px 120px,
+    radial-gradient(circle, rgba(24, 168, 197, 0.32) 0 4px, transparent 5px) 90% 26% / 140px 140px,
+    radial-gradient(circle, rgba(255, 45, 32, 0.22) 0 5px, transparent 6px) 78% 84% / 150px 150px,
+    radial-gradient(circle, rgba(114, 191, 19, 0.34) 0 5px, transparent 6px) 16% 82% / 150px 150px;
+  opacity: 0.7;
+}
+
+.app-shell::after {
+  background:
+    conic-gradient(from 45deg, transparent 0 25%, rgba(255, 255, 255, 0.42) 0 50%, transparent 0 100%) 18% 76% / 18px 18px,
+    conic-gradient(from 45deg, transparent 0 25%, rgba(255, 255, 255, 0.34) 0 50%, transparent 0 100%) 84% 38% / 22px 22px;
+  animation: room-sparkle 8s ease-in-out infinite;
+  opacity: 0.72;
 }
 
 .assistant-panel {
@@ -74,7 +96,7 @@ button {
 .ambient-label {
   color: rgba(23, 33, 28, 0.82);
   display: grid;
-  gap: 8px;
+  gap: 6px;
   justify-items: center;
   left: 50%;
   position: absolute;
@@ -84,33 +106,48 @@ button {
 }
 
 .ambient-label h1 {
-  font-size: clamp(22px, 4vw, 34px);
+  color: var(--camp-navy);
+  font-size: clamp(24px, 4vw, 38px);
+  font-weight: 900;
   letter-spacing: 0;
   line-height: 0.95;
   margin: 0;
 }
 
+.ambient-label strong {
+  color: var(--camp-lime);
+  font-size: clamp(13px, 1.8vw, 17px);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  text-shadow:
+    1px 0 #ffffff,
+    -1px 0 #ffffff,
+    0 1px #ffffff,
+    0 -1px #ffffff;
+}
+
 .ambient-label p {
-  background: rgba(255, 250, 242, 0.56);
-  border: 1px solid rgba(24, 77, 71, 0.08);
+  background: rgba(255, 250, 242, 0.74);
+  border: 2px solid rgba(255, 191, 24, 0.62);
   border-radius: 999px;
-  color: #32564f;
-  font-size: clamp(13px, 2vw, 16px);
-  font-weight: 750;
+  color: var(--camp-navy);
+  font-size: clamp(14px, 2vw, 17px);
+  font-weight: 850;
   line-height: 1;
   margin: 0;
   padding: 9px 13px;
 }
 
 .speech-bubble {
-  background: rgba(255, 250, 242, 0.76);
-  border: 1px solid rgba(24, 77, 71, 0.12);
-  border-radius: 8px;
-  bottom: clamp(12px, 3vh, 34px);
-  box-shadow: 0 20px 60px rgba(43, 52, 48, 0.14);
-  color: #17211c;
-  max-width: min(620px, 86vw);
-  padding: 16px 18px;
+  background: rgba(255, 250, 242, 0.9);
+  border: 3px solid rgba(0, 31, 78, 0.12);
+  border-radius: 24px;
+  bottom: clamp(18px, 4vh, 48px);
+  box-shadow: 0 20px 50px rgba(43, 52, 48, 0.12);
+  color: var(--camp-navy);
+  max-width: min(520px, 78vw);
+  padding: 16px 20px;
   position: absolute;
   transform: translateY(0);
   z-index: 3;
@@ -118,8 +155,8 @@ button {
 
 .speech-bubble::after {
   background: inherit;
-  border-bottom: 1px solid rgba(24, 77, 71, 0.12);
-  border-right: 1px solid rgba(24, 77, 71, 0.12);
+  border-bottom: 3px solid rgba(0, 31, 78, 0.12);
+  border-right: 3px solid rgba(0, 31, 78, 0.12);
   content: "";
   height: 14px;
   left: 50%;
@@ -130,9 +167,15 @@ button {
 }
 
 .speech-bubble p {
-  font-size: clamp(16px, 2.2vw, 21px);
-  line-height: 1.45;
+  display: -webkit-box;
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 750;
+  -webkit-line-clamp: 3;
+  line-height: 1.28;
   margin: 0;
+  max-height: 4em;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
 }
 
 .touch-controls {
@@ -150,13 +193,14 @@ button {
   aspect-ratio: 1;
   background:
     radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.35), transparent 28%),
-    #f2b84b;
+    var(--camp-yellow);
   border: 0;
   border-radius: 50%;
   box-shadow:
-    0 24px 54px rgba(145, 100, 27, 0.28),
-    inset 0 -5px 0 rgba(22, 33, 29, 0.12);
-  color: #16211d;
+    0 24px 54px rgba(255, 115, 0, 0.26),
+    0 0 0 10px rgba(255, 207, 92, 0.18),
+    inset 0 -5px 0 rgba(0, 31, 78, 0.14);
+  color: var(--camp-navy);
   cursor: pointer;
   display: grid;
   gap: 8px;
@@ -182,7 +226,7 @@ button {
 .record-button:hover:not(:disabled) {
   background:
     radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.4), transparent 28%),
-    #ffc961;
+    #ffd34a;
   transform: translateY(-2px) scale(1.015);
 }
 
@@ -198,7 +242,7 @@ button {
 .record-button.recording {
   background:
     radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.28), transparent 28%),
-    #d94b3d;
+    var(--camp-red);
   box-shadow:
     0 24px 56px rgba(145, 52, 40, 0.3),
     0 0 0 14px rgba(217, 75, 61, 0.12),
@@ -209,7 +253,7 @@ button {
 .replay-button {
   align-items: center;
   aspect-ratio: 1;
-  background: rgba(24, 77, 71, 0.94);
+  background: var(--camp-navy);
   border: 0;
   border-radius: 50%;
   box-shadow: 0 16px 34px rgba(24, 77, 71, 0.22);
@@ -226,7 +270,7 @@ button {
 }
 
 .replay-button:hover {
-  background: #23665f;
+  background: #06366f;
   transform: translateY(-1px);
 }
 
@@ -246,8 +290,8 @@ button {
 }
 
 .heard-line {
-  color: rgba(23, 33, 28, 0.62);
-  font-size: clamp(13px, 1.8vw, 16px);
+  color: rgba(23, 33, 28, 0.42);
+  font-size: clamp(12px, 1.6vw, 14px);
   justify-self: center;
   line-height: 1.35;
   margin: 10px 0 0;
@@ -261,14 +305,14 @@ button {
 }
 
 .heard-line span {
-  color: #32564f;
+  color: rgba(0, 31, 78, 0.78);
   font-weight: 850;
 }
 
 .nova-character {
-  --nova-state-color: #40c7bd;
-  color: #184d47;
-  height: min(78dvh, 860px);
+  --nova-state-color: var(--camp-sky);
+  color: var(--camp-navy);
+  height: min(78dvh, 880px);
   min-height: 420px;
   position: relative;
   transform: translateY(2vh);
@@ -298,7 +342,7 @@ button {
   fill: none;
   opacity: 0.36;
   stroke: var(--nova-state-color);
-  stroke-width: 2;
+  stroke-width: 2.4;
   transform-origin: 130px 136px;
   transition:
     opacity 220ms ease,
@@ -318,12 +362,53 @@ button {
   opacity: 0.18;
 }
 
+.nova-orbit-dash {
+  fill: none;
+  opacity: 0.9;
+  stroke: var(--camp-navy);
+  stroke-dasharray: 7 9;
+  stroke-linecap: round;
+  stroke-width: 5;
+  transform-origin: 130px 130px;
+}
+
+.nova-orbit-dash.top {
+  animation: orbit-drift 6s ease-in-out infinite;
+}
+
+.nova-orbit-dash.bottom {
+  animation: orbit-drift 6s ease-in-out infinite reverse;
+  opacity: 0.6;
+}
+
+.nova-star {
+  animation: camp-star-pop 2.6s ease-in-out infinite;
+  fill: var(--camp-orange);
+  stroke: none;
+  transform-origin: 62px 85px;
+}
+
+.nova-lime-star {
+  animation: camp-star-pop 2.2s ease-in-out infinite 300ms;
+  fill: var(--camp-lime);
+  transform-origin: 202px 106px;
+}
+
+.nova-bubbles {
+  animation: bubble-float 2.8s ease-in-out infinite;
+  fill: var(--camp-lime);
+  opacity: 0.9;
+  stroke: var(--camp-navy);
+  stroke-width: 1.5;
+  transform-origin: 68px 36px;
+}
+
 .nova-wave {
   fill: none;
   opacity: 0;
   stroke: var(--nova-state-color);
   stroke-linecap: round;
-  stroke-width: 8;
+  stroke-width: 7;
   transform-origin: 130px 140px;
   transition:
     opacity 180ms ease,
@@ -332,7 +417,7 @@ button {
 
 .nova-floor-shadow {
   animation: nova-shadow-bounce 3.2s ease-in-out infinite;
-  fill: #10231f;
+  fill: var(--camp-navy);
   opacity: 0.13;
   transform-origin: 130px 228px;
 }
@@ -343,13 +428,28 @@ button {
   transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.nova-arms {
+  fill: none;
+  stroke: var(--camp-navy);
+  stroke-linecap: round;
+  stroke-width: 10;
+  transform-origin: 130px 150px;
+}
+
+.nova-arm {
+  opacity: 0.88;
+  transform-box: fill-box;
+  transform-origin: top center;
+}
+
 .nova-antenna {
-  stroke: #184d47;
+  stroke: var(--camp-navy);
+  transform-origin: 130px 66px;
   transition: stroke 240ms ease;
 }
 
 .nova-antenna-dot {
-  fill: #f2b84b;
+  fill: var(--camp-yellow);
   transform-box: fill-box;
   transform-origin: center;
   transition: fill 240ms ease;
@@ -357,8 +457,8 @@ button {
 
 .nova-shell {
   fill: url("#nova-body");
-  stroke: rgba(24, 77, 71, 0.2);
-  stroke-width: 3;
+  stroke: var(--camp-navy);
+  stroke-width: 4;
 }
 
 .nova-core {
@@ -390,7 +490,7 @@ button {
 }
 
 .nova-eye {
-  animation: nova-blink 5.4s infinite;
+  animation: nova-blink 5.2s infinite;
 }
 
 .nova-eye-lid {
@@ -402,8 +502,15 @@ button {
   opacity: 1;
   stroke: #fffaf2;
   stroke-linecap: round;
-  stroke-width: 8;
+  stroke-width: 9;
   transition: opacity 160ms ease;
+}
+
+.nova-cheek {
+  fill: #ff9c8d;
+  opacity: 0.54;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .mouth-bars {
@@ -419,10 +526,48 @@ button {
 }
 
 .nova-thinking-sparks {
-  fill: #f2b84b;
+  fill: var(--camp-yellow);
   opacity: 0;
   transform-origin: 130px 130px;
   transition: opacity 180ms ease;
+}
+
+.nova-thought-dots {
+  fill: var(--camp-blue);
+  opacity: 0;
+  transform-origin: 110px 62px;
+  transition: opacity 180ms ease;
+}
+
+.nova-rocket {
+  animation: rocket-hover 2.4s ease-in-out infinite;
+  transform-origin: 214px 48px;
+}
+
+.rocket-body {
+  fill: #f8fbff;
+  stroke: var(--camp-navy);
+  stroke-linejoin: round;
+  stroke-width: 3.5;
+}
+
+.rocket-window {
+  fill: #5fddea;
+  stroke: var(--camp-navy);
+  stroke-width: 3;
+}
+
+.rocket-fin {
+  fill: var(--camp-red);
+  stroke: var(--camp-navy);
+  stroke-linejoin: round;
+  stroke-width: 3.5;
+}
+
+.rocket-flame {
+  animation: flame-flicker 520ms ease-in-out infinite;
+  fill: var(--camp-orange);
+  transform-origin: 213px 71px;
 }
 
 .emotion-happy .nova-eye-wrap.left,
@@ -442,13 +587,27 @@ button {
   fill: #ffcf5c;
 }
 
+.emotion-encouraging .nova-cheek,
+.emotion-happy .nova-cheek {
+  animation: nova-cheek-glow 1.8s ease-in-out infinite;
+  opacity: 0.72;
+}
+
 .mode-idle .nova-halo.middle,
 .mode-idle .nova-halo.inner {
   animation: nova-ring-pulse 3s ease-in-out infinite;
 }
 
+.mode-idle .nova-arm.left {
+  animation: nova-arm-wave-left 5s ease-in-out infinite;
+}
+
+.mode-idle .nova-arm.right {
+  animation: nova-arm-wave-right 5s ease-in-out infinite 400ms;
+}
+
 .mode-listening {
-  --nova-state-color: #d94b3d;
+  --nova-state-color: var(--camp-red);
 }
 
 .mode-listening .nova-body {
@@ -475,11 +634,28 @@ button {
 
 .mode-listening .nova-antenna-dot {
   animation: nova-dot-pulse 860ms ease-in-out infinite;
-  fill: #d94b3d;
+  fill: var(--camp-red);
+}
+
+.mode-listening .nova-antenna {
+  animation: nova-antenna-wiggle 860ms ease-in-out infinite;
+}
+
+.mode-listening .nova-eye-wrap.left,
+.mode-listening .nova-eye-wrap.right {
+  transform: translateY(-4px) scale(1.15);
+}
+
+.mode-listening .nova-arm.left {
+  animation: nova-arm-listen-left 1.05s ease-in-out infinite;
+}
+
+.mode-listening .nova-arm.right {
+  animation: nova-arm-listen-right 1.05s ease-in-out infinite;
 }
 
 .mode-thinking {
-  --nova-state-color: #6b84d2;
+  --nova-state-color: var(--camp-blue);
 }
 
 .mode-thinking .nova-body {
@@ -495,12 +671,17 @@ button {
   opacity: 1;
 }
 
+.mode-thinking .nova-thought-dots {
+  animation: nova-thought-pop 1.4s ease-in-out infinite;
+  opacity: 1;
+}
+
 .mode-thinking .nova-core {
   animation: nova-core-think 1.4s ease-in-out infinite;
 }
 
 .mode-speaking {
-  --nova-state-color: #1f8f7f;
+  --nova-state-color: var(--camp-lime);
 }
 
 .mode-speaking .nova-body {
@@ -527,6 +708,14 @@ button {
   animation: nova-talk 640ms ease-in-out infinite;
 }
 
+.mode-speaking .nova-arm.left {
+  animation: nova-arm-talk-left 780ms ease-in-out infinite;
+}
+
+.mode-speaking .nova-arm.right {
+  animation: nova-arm-talk-right 780ms ease-in-out infinite;
+}
+
 .mode-speaking .mouth-bars rect:nth-child(2) {
   animation-delay: 90ms;
 }
@@ -540,7 +729,7 @@ button {
 }
 
 .mode-error {
-  --nova-state-color: #bd5d51;
+  --nova-state-color: var(--camp-red);
   filter: saturate(0.92);
 }
 
@@ -549,11 +738,19 @@ button {
 }
 
 .mode-error .nova-core {
-  fill: #bd5d51;
+  fill: var(--camp-red);
 }
 
 .mode-error .nova-aura {
   opacity: 0.14;
+}
+
+.mode-error .nova-arm.left {
+  transform: rotate(-12deg);
+}
+
+.mode-error .nova-arm.right {
+  transform: rotate(12deg);
 }
 
 @media (orientation: landscape) and (min-width: 900px) {
@@ -566,10 +763,21 @@ button {
   }
 
   .nova-character {
-    height: min(60dvh, 560px);
+    height: min(58dvh, 540px);
     min-height: 340px;
     transform: translateY(3vh);
     width: min(66vw, 620px);
+  }
+
+  .speech-bubble {
+    bottom: clamp(4px, 1.2vh, 14px);
+    max-width: min(480px, 56vw);
+  }
+
+  .speech-bubble p {
+    font-size: clamp(18px, 2vw, 24px);
+    -webkit-line-clamp: 2;
+    max-height: 2.7em;
   }
 
   .touch-controls {
@@ -593,10 +801,20 @@ button {
   }
 
   .nova-character {
-    height: min(70dvh, 560px);
+    height: min(68dvh, 560px);
     min-height: 360px;
     transform: translateY(3vh);
     width: min(112vw, 560px);
+  }
+
+  .speech-bubble {
+    max-width: 84vw;
+    padding: 14px 16px;
+  }
+
+  .speech-bubble p {
+    font-size: clamp(18px, 5vw, 24px);
+    -webkit-line-clamp: 3;
   }
 
   .record-button {
@@ -653,7 +871,7 @@ button {
   }
 
   50% {
-    transform: translateY(-5px) scale(1.012);
+    transform: translateY(-7px) scale(1.018, 0.992);
   }
 }
 
@@ -675,7 +893,7 @@ button {
   }
 
   50% {
-    transform: translateY(-6px) scale(1.018);
+    transform: translateY(-7px) scale(1.026, 0.99);
   }
 }
 
@@ -800,6 +1018,175 @@ button {
   94%,
   96% {
     transform: scaleY(0.08);
+  }
+}
+
+@keyframes room-sparkle {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 0.82;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes orbit-drift {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes camp-star-pop {
+  0%,
+  100% {
+    transform: scale(0.96) rotate(0deg);
+  }
+
+  50% {
+    transform: scale(1.12) rotate(8deg);
+  }
+}
+
+@keyframes bubble-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes rocket-hover {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-5px) rotate(3deg);
+  }
+}
+
+@keyframes flame-flicker {
+  0%,
+  100% {
+    transform: scale(0.95);
+  }
+
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes nova-cheek-glow {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+@keyframes nova-arm-wave-left {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(-9deg);
+  }
+}
+
+@keyframes nova-arm-wave-right {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(9deg);
+  }
+}
+
+@keyframes nova-arm-listen-left {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+
+@keyframes nova-arm-listen-right {
+  0%,
+  100% {
+    transform: rotate(8deg);
+  }
+
+  50% {
+    transform: rotate(18deg);
+  }
+}
+
+@keyframes nova-arm-talk-left {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+
+  50% {
+    transform: rotate(-13deg);
+  }
+}
+
+@keyframes nova-arm-talk-right {
+  0%,
+  100% {
+    transform: rotate(4deg);
+  }
+
+  50% {
+    transform: rotate(13deg);
+  }
+}
+
+@keyframes nova-antenna-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes nova-thought-pop {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: translateY(5px) scale(0.88);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translateY(-4px) scale(1.08);
   }
 }
 

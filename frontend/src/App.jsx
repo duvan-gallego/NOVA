@@ -18,6 +18,7 @@ export function App() {
   const isProcessing = status === "processing";
   const characterMode = error ? "error" : getCharacterMode(status);
   const characterEmotion = error ? "confused" : getCharacterEmotion(status, answer);
+  const answerPreview = getAnswerPreview(answer);
 
   async function startRecording() {
     setError("");
@@ -114,14 +115,15 @@ export function App() {
         <div className="character-stage">
           <div className="ambient-label">
             <h1>NOVA</h1>
+            <strong>Curiosity Lab</strong>
             <p aria-live="polite">{statusLabel(characterMode)}</p>
           </div>
 
           <NovaCharacter mode={characterMode} emotion={characterEmotion} />
 
-          {answer && !error && (
+          {answerPreview && !error && (
             <div className="speech-bubble">
-              <p>{answer}</p>
+              <p>{answerPreview}</p>
             </div>
           )}
         </div>
@@ -149,7 +151,7 @@ export function App() {
 
         {question && (
           <p className="heard-line">
-            <span>Escuche:</span> {question}
+            <span>Me preguntaste:</span> {question}
           </p>
         )}
       </section>
@@ -159,8 +161,8 @@ export function App() {
 
 function buttonLabel(status) {
   if (status === "recording") return "Detener";
-  if (status === "processing") return "Pensando...";
-  if (status === "playing") return "Hablando...";
+  if (status === "processing") return "Mmm...";
+  if (status === "playing") return "¡Ya sé!";
   return "Hablar";
 }
 
@@ -181,10 +183,23 @@ function getCharacterEmotion(status, answer) {
 
 function statusLabel(mode) {
   if (mode === "listening") return "Te escucho";
-  if (mode === "thinking") return "Estoy pensando";
-  if (mode === "speaking") return "Te respondo";
-  if (mode === "error") return "Necesito ayuda";
-  return "Toca para hablar";
+  if (mode === "thinking") return "Mmm...";
+  if (mode === "speaking") return "¡Ya sé!";
+  if (mode === "error") return "Ups, intentemos otra vez";
+  return "Toca y pregunta";
+}
+
+function getAnswerPreview(text) {
+  if (!text) return "";
+
+  const sentences = text
+    .replace(/\s+/g, " ")
+    .trim()
+    .match(/[^.!?¡¿]+[.!?]*/g);
+  const preview = (sentences ?? [text]).slice(0, 2).join(" ").trim();
+
+  if (preview.length <= 170) return preview;
+  return `${preview.slice(0, 167).trim()}...`;
 }
 
 function getRecorderOptions() {
