@@ -1,6 +1,7 @@
 import { Mic, Play, Square, Volume2 } from "lucide-react";
 import React from "react";
 import { useRef, useState } from "react";
+import { NovaCharacter } from "./components/NovaCharacter.jsx";
 
 const API_URL = import.meta.env.VITE_NOVA_API_URL ?? "http://localhost:8000";
 
@@ -15,6 +16,8 @@ export function App() {
 
   const isRecording = status === "recording";
   const isProcessing = status === "processing";
+  const characterMode = error ? "error" : getCharacterMode(status);
+  const characterEmotion = error ? "confused" : getCharacterEmotion(status, answer);
 
   async function startRecording() {
     setError("");
@@ -108,13 +111,20 @@ export function App() {
   return (
     <main className="app-shell">
       <section className="assistant-panel" aria-label="NOVA">
-        <div className="brand-row">
-          <div className="brand-mark">
-            <Volume2 size={28} strokeWidth={2.4} />
+        <div className="assistant-hero">
+          <div className="brand-row">
+            <div className="brand-mark">
+              <Volume2 size={28} strokeWidth={2.4} />
+            </div>
+            <div>
+              <h1>NOVA</h1>
+              <p>Preguntas habladas, respuestas en español.</p>
+            </div>
           </div>
-          <div>
-            <h1>NOVA</h1>
-            <p>Preguntas habladas, respuestas en español.</p>
+
+          <div className="character-stage">
+            <NovaCharacter mode={characterMode} emotion={characterEmotion} />
+            <p className="status-pill" aria-live="polite">{statusLabel(characterMode)}</p>
           </div>
         </div>
 
@@ -161,8 +171,31 @@ export function App() {
 function buttonLabel(status) {
   if (status === "recording") return "Detener";
   if (status === "processing") return "Pensando...";
-  if (status === "playing") return "Escuchando";
+  if (status === "playing") return "Respondiendo...";
   return "Grabar pregunta";
+}
+
+function getCharacterMode(status) {
+  if (status === "recording") return "listening";
+  if (status === "processing") return "thinking";
+  if (status === "playing") return "speaking";
+  return "idle";
+}
+
+function getCharacterEmotion(status, answer) {
+  if (status === "recording") return "curious";
+  if (status === "processing") return "curious";
+  if (status === "playing") return "happy";
+  if (answer) return "encouraging";
+  return "calm";
+}
+
+function statusLabel(mode) {
+  if (mode === "listening") return "Escuchando";
+  if (mode === "thinking") return "Pensando";
+  if (mode === "speaking") return "Respondiendo";
+  if (mode === "error") return "Necesito ayuda";
+  return "Lista";
 }
 
 function getRecorderOptions() {
