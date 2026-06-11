@@ -1,11 +1,9 @@
-import { Mic, Play, Radio, Square } from "lucide-react";
+import { Mic, Play, Square } from "lucide-react";
 import React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { NovaCharacter } from "./components/NovaCharacter.jsx";
 
 const API_URL = (import.meta.env.VITE_NOVA_API_URL ?? "").replace(/\/$/, "");
-const FOLLOW_UP_TIMEOUT_MS = 9000;
-const WAKE_RESTART_DELAY_MS = 450;
 const SILENT_AUDIO_URL =
   "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
 const THINKING_AUDIO_URLS = [
@@ -30,13 +28,6 @@ const THINKING_AUDIO_URLS = [
   "/audio/thinking/tengo-una-idea.wav",
   "/audio/thinking/voy-paso-a-paso.wav",
 ];
-const WAKE_AUDIO_URLS = [
-  "/audio/wake/aqui-estoy.wav",
-  "/audio/wake/hola-explorador.wav",
-  "/audio/wake/lista-para-escuchar.wav",
-  "/audio/wake/te-escucho.wav",
-  "/audio/wake/dime-tu-pregunta.wav",
-];
 const RECORDING_AUDIO_URLS = [
   "/audio/recording/adelante.wav",
   "/audio/recording/cuentame.wav",
@@ -51,11 +42,9 @@ const RETRY_AUDIO_URLS = [
   "/audio/retry/habla-un-poquito-mas-fuerte.wav",
   "/audio/retry/probemos-de-nuevo.wav",
 ];
-const WAKE_PHRASES = ["hola nova", "oye nova", "nova"];
 
 export function App() {
   const [status, setStatus] = useState("idle");
-  const [voiceMode, setVoiceMode] = useState(false);
   const [voiceStatus, setVoiceStatus] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -64,49 +53,16 @@ export function App() {
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const audioRef = useRef(null);
-  const recognitionRef = useRef(null);
-  const statusRef = useRef(status);
-  const voiceModeRef = useRef(voiceMode);
-  const followUpTimerRef = useRef(null);
-  const wakeRestartTimerRef = useRef(null);
   const lastThinkingIndexRef = useRef(-1);
-  const lastWakeIndexRef = useRef(-1);
   const lastRecordingIndexRef = useRef(-1);
   const lastRetryIndexRef = useRef(-1);
 
   const isRecording = status === "recording";
   const isProcessing = status === "processing";
+  const isPlaying = status === "playing";
   const characterMode = error ? "error" : getCharacterMode(status);
   const characterEmotion = error ? "confused" : getCharacterEmotion(status, answer);
   const answerPreview = getAnswerPreview(answer);
-  const voiceAvailable = isSpeechRecognitionAvailable();
-
-  useEffect(() => {
-    statusRef.current = status;
-  }, [status]);
-
-  useEffect(() => {
-    voiceModeRef.current = voiceMode;
-    if (voiceMode) {
-      stopSpeechRecognition({ clearRestart: true });
-      clearTimers();
-      setVoiceStatus("Activando...");
-      playCue(WAKE_AUDIO_URLS, lastWakeIndexRef).finally(() => {
-        if (voiceModeRef.current && statusRef.current === "idle") {
-          startWakeListening();
-        }
-      });
-    } else {
-      stopSpeechRecognition({ clearRestart: true });
-      clearTimers();
-      setVoiceStatus("");
-    }
-
-    return () => {
-      stopSpeechRecognition({ clearRestart: true });
-      clearTimers();
-    };
-  }, [voiceMode]);
 
   async function startRecording() {
     unlockAudioPlayback();
@@ -114,8 +70,6 @@ export function App() {
     setQuestion("");
     setAnswer("");
     revokeAudioUrl();
-    stopSpeechRecognition({ clearRestart: true });
-    clearTimers();
     setVoiceStatus("Te escucho");
 
     try {
@@ -190,66 +144,12 @@ export function App() {
       setError(err.message);
       setStatus("idle");
       setVoiceStatus("");
-      playRetryCue(err.message).finally(() => {
-        if (voiceModeRef.current) {
-          startWakeListening();
-        }
-      });
-    }
-  }
-
-  async function sendTextQuestion(text) {
-    const cleanQuestion = text.trim();
-    if (!cleanQuestion || statusRef.current === "processing" || statusRef.current === "playing") {
-      return;
-    }
-
-    stopSpeechRecognition({ clearRestart: true });
-    clearTimers();
-    setError("");
-    setQuestion("");
-    setAnswer("");
-    revokeAudioUrl();
-    setStatus("processing");
-    setVoiceStatus("Pensando...");
-    playThinkingPhrase();
-
-    try {
-      const response = await fetch(`${API_URL}/ask-text`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: cleanQuestion }),
-      });
-
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        throw new Error(body.detail ?? "NOVA no pudo responder.");
-      }
-
-      const data = await response.json();
-      setQuestion(data.question);
-      setAnswer(data.answer);
-      const nextAudioUrl = base64ToAudioUrl(data.audio_base64, data.audio_mime_type);
-      setAudioUrl(nextAudioUrl);
-      playAudio(nextAudioUrl);
-      setStatus("playing");
-      setVoiceStatus("");
-    } catch (err) {
-      setError(err.message);
-      setStatus("idle");
-      setVoiceStatus("");
-      playRetryCue(err.message).finally(() => {
-        if (voiceModeRef.current) {
-          startWakeListening();
-        }
-      });
+      playRetryCue(err.message);
     }
   }
 
   function playAudio(url = audioUrl) {
     if (!url) return;
-    stopSpeechRecognition({ clearRestart: true });
-    clearTimers();
 
     const audio = audioRef.current;
     if (!audio) return;
@@ -259,17 +159,23 @@ export function App() {
     audio.currentTime = 0;
     audio.onended = () => {
       setStatus("idle");
-      if (voiceModeRef.current) {
-        startFollowUpListening();
-      }
     };
     audio.play().catch(() => {
       setStatus("idle");
       setVoiceStatus("Toca reproducir");
-      if (voiceModeRef.current) {
-        startFollowUpListening();
-      }
     });
+  }
+
+  function stopAudioPlayback() {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.onended = null;
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setStatus("idle");
+    setVoiceStatus("");
   }
 
   function playThinkingPhrase() {
@@ -347,174 +253,6 @@ export function App() {
     }
   }
 
-  function toggleVoiceMode() {
-    unlockAudioPlayback();
-    if (!voiceAvailable) {
-      setError("Este navegador no tiene reconocimiento de voz integrado. Prueba Chrome, Edge o Brave.");
-      return;
-    }
-    setVoiceMode((enabled) => !enabled);
-  }
-
-  function startWakeListening() {
-    if (!voiceModeRef.current || !voiceAvailable || statusRef.current !== "idle") return;
-
-    clearTimers();
-    setVoiceStatus("Escuchando: Hola NOVA");
-    startSpeechRecognition({
-      mode: "wake",
-      continuous: true,
-      timeoutMs: 0,
-      onSpeech: (text) => {
-        const wake = parseWakeQuestion(text);
-        if (!wake.woke) return;
-
-        if (wake.question) {
-          sendTextQuestion(wake.question);
-          return;
-        }
-
-        setVoiceStatus("Te escucho");
-        playCue(WAKE_AUDIO_URLS, lastWakeIndexRef).finally(() => {
-          if (voiceModeRef.current && statusRef.current === "idle") {
-            startCommandListening(FOLLOW_UP_TIMEOUT_MS);
-          }
-        });
-      },
-      onEnd: () => {
-        if (voiceModeRef.current && statusRef.current === "idle") {
-          scheduleWakeListening();
-        }
-      },
-    });
-  }
-
-  function startFollowUpListening() {
-    if (!voiceModeRef.current || !voiceAvailable || statusRef.current !== "idle") return;
-    clearWakeRestartTimer();
-    setVoiceStatus("Puedes preguntar otra cosa");
-    startCommandListening(FOLLOW_UP_TIMEOUT_MS, () => startWakeListening());
-  }
-
-  function startCommandListening(timeoutMs, onTimeout = () => startWakeListening()) {
-    if (!voiceModeRef.current || !voiceAvailable || statusRef.current !== "idle") return;
-    clearWakeRestartTimer();
-
-    startSpeechRecognition({
-      mode: "command",
-      continuous: false,
-      timeoutMs,
-      onSpeech: (text) => {
-        sendTextQuestion(removeWakePhrase(text));
-      },
-      onEnd: () => {
-        if (voiceModeRef.current && statusRef.current === "idle") {
-          onTimeout();
-        }
-      },
-    });
-  }
-
-  function startSpeechRecognition({ mode, continuous, timeoutMs, onSpeech, onEnd }) {
-    stopSpeechRecognition({ clearRestart: mode !== "wake" });
-    clearFollowUpTimer();
-
-    const SpeechRecognition = getSpeechRecognition();
-    if (!SpeechRecognition) return;
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "es-419";
-    recognition.continuous = continuous;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-    recognitionRef.current = recognition;
-
-    recognition.onresult = (event) => {
-      const result = event.results[event.results.length - 1];
-      const transcript = result?.[0]?.transcript ?? "";
-      if (result?.isFinal && transcript.trim()) {
-        onSpeech(transcript);
-      }
-    };
-
-    recognition.onerror = (event) => {
-      if (event.error === "no-speech") return;
-      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-        setError("El navegador bloqueo el microfono. Permite el microfono para usar manos libres.");
-        setVoiceMode(false);
-        return;
-      }
-      if (mode === "wake") {
-        scheduleWakeListening(900);
-        return;
-      }
-      setVoiceStatus(mode === "wake" ? "Di: Hola NOVA" : "Te escucho");
-    };
-
-    recognition.onend = () => {
-      if (recognitionRef.current !== recognition) return;
-      recognitionRef.current = null;
-      onEnd();
-    };
-
-    try {
-      recognition.start();
-    } catch {
-      recognitionRef.current = null;
-      if (mode === "wake") {
-        scheduleWakeListening(900);
-      }
-    }
-
-    if (timeoutMs) {
-      followUpTimerRef.current = window.setTimeout(() => {
-        stopSpeechRecognition();
-        onEnd();
-      }, timeoutMs);
-    }
-  }
-
-  function scheduleWakeListening(delayMs = WAKE_RESTART_DELAY_MS) {
-    if (wakeRestartTimerRef.current || !voiceModeRef.current || statusRef.current !== "idle") return;
-    wakeRestartTimerRef.current = window.setTimeout(() => {
-      wakeRestartTimerRef.current = null;
-      if (voiceModeRef.current && statusRef.current === "idle" && !recognitionRef.current) {
-        startWakeListening();
-      }
-    }, delayMs);
-  }
-
-  function stopSpeechRecognition({ clearRestart = false } = {}) {
-    if (clearRestart) {
-      clearWakeRestartTimer();
-    }
-    const recognition = recognitionRef.current;
-    recognitionRef.current = null;
-    if (recognition) {
-      recognition.onend = null;
-      recognition.stop();
-    }
-  }
-
-  function clearFollowUpTimer() {
-    if (followUpTimerRef.current) {
-      window.clearTimeout(followUpTimerRef.current);
-      followUpTimerRef.current = null;
-    }
-  }
-
-  function clearWakeRestartTimer() {
-    if (wakeRestartTimerRef.current) {
-      window.clearTimeout(wakeRestartTimerRef.current);
-      wakeRestartTimerRef.current = null;
-    }
-  }
-
-  function clearTimers() {
-    clearFollowUpTimer();
-    clearWakeRestartTimer();
-  }
-
   function unlockAudioPlayback() {
     const audio = audioRef.current;
     if (!audio) return;
@@ -566,18 +304,6 @@ export function App() {
 
         <div className="touch-controls">
           <button
-            className={`voice-mode-button ${voiceMode ? "active" : ""}`}
-            onClick={toggleVoiceMode}
-            type="button"
-            title="Manos libres"
-            aria-pressed={voiceMode}
-            aria-label={voiceMode ? "Desactivar manos libres" : "Activar manos libres"}
-          >
-            <Radio size={24} />
-            <span>{voiceMode ? "Escuchando" : "Manos libres"}</span>
-          </button>
-
-          <button
             className={`record-button ${isRecording ? "recording" : ""}`}
             onClick={isRecording ? stopRecording : startRecording}
             disabled={isProcessing}
@@ -589,8 +315,14 @@ export function App() {
           </button>
 
           {audioUrl && (
-            <button className="replay-button" onClick={() => playAudio()} type="button" title="Reproducir respuesta">
-              <Play size={22} fill="currentColor" />
+            <button
+              className={`replay-button ${isPlaying ? "stop-audio" : ""}`}
+              onClick={isPlaying ? stopAudioPlayback : () => playAudio()}
+              type="button"
+              title={isPlaying ? "Detener respuesta" : "Reproducir respuesta"}
+              aria-label={isPlaying ? "Detener respuesta" : "Reproducir respuesta"}
+            >
+              {isPlaying ? <Square size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}
             </button>
           )}
         </div>
@@ -689,14 +421,6 @@ function base64ToAudioUrl(base64, mimeType) {
   return URL.createObjectURL(new Blob([bytes], { type: mimeType }));
 }
 
-function getSpeechRecognition() {
-  return window.SpeechRecognition || window.webkitSpeechRecognition;
-}
-
-function isSpeechRecognitionAvailable() {
-  return Boolean(getSpeechRecognition());
-}
-
 function pickAudioIndex(urls, previousIndex) {
   if (urls.length <= 1) return 0;
 
@@ -715,23 +439,6 @@ function shouldPlayRetryCue(message = "") {
     normalized.includes("intenta") ||
     normalized.includes("microfono")
   );
-}
-
-function parseWakeQuestion(text) {
-  const normalized = normalizeSpeech(text);
-  const phrase = WAKE_PHRASES.find((item) => normalized.includes(item));
-  if (!phrase) return { woke: false, question: "" };
-
-  const phraseIndex = normalized.indexOf(phrase);
-  const question = normalized.slice(phraseIndex + phrase.length).replace(/^[,.\s]+/, "").trim();
-  return { woke: true, question };
-}
-
-function removeWakePhrase(text) {
-  const normalized = normalizeSpeech(text);
-  const phrase = WAKE_PHRASES.find((item) => normalized.startsWith(item));
-  if (!phrase) return text.trim();
-  return normalized.slice(phrase.length).replace(/^[,.\s]+/, "").trim();
 }
 
 function normalizeSpeech(text) {
