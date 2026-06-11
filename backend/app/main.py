@@ -3,6 +3,7 @@ from time import perf_counter
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 from app.adapters.llm import OpenAICompatibleLLM
 from app.adapters.stt import FasterWhisperSpeechToText
@@ -22,6 +23,7 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://localhost:5174",
         "http://127.0.0.1:5174",
+        "http://192.168.68.67:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -32,6 +34,10 @@ stt = FasterWhisperSpeechToText(settings)
 llm = OpenAICompatibleLLM(settings)
 tts = KokoroTextToSpeech(settings)
 memory = MemoryStore(settings)
+
+
+class TextQuestionRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=1000)
 
 
 @app.on_event("startup")
@@ -65,6 +71,27 @@ async def ask(audio: UploadFile = File(...)) -> dict[str, str]:
         uploaded_path = await save_upload(audio)
         wav_path = convert_to_wav(uploaded_path)
         question = stt.transcribe(wav_path)
+        return answer_question(question)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    finally:
+        cleanup_files(uploaded_path, wav_path if wav_path != uploaded_path else None, answer_audio_path)
+
+
+@app.post("/ask-text")
+def ask_text(payload: TextQuestionRequest) -> dict[str, str]:
+    try:
+        return answer_question(payload.question.strip())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+def answer_question(question: str) -> dict[str, str]:
+    if not question:
+        raise RuntimeError("No pude escuchar la pregunta. Intenta de nuevo.")
+
+    answer_audio_path = None
+    try:
         answer = llm.answer(
             question,
             memory.build_context(),
@@ -79,7 +106,5 @@ async def ask(audio: UploadFile = File(...)) -> dict[str, str]:
             "audio_mime_type": "audio/wav",
             "audio_base64": encode_audio_base64(answer_audio_path),
         }
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
     finally:
-        cleanup_files(uploaded_path, wav_path if wav_path != uploaded_path else None, answer_audio_path)
+        cleanup_files(answer_audio_path)

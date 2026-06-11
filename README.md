@@ -46,8 +46,19 @@ After backend and frontend dependencies are installed, start both servers from t
 pnpm dev
 ```
 
-This runs the FastAPI backend at `http://127.0.0.1:8000` and the Vite frontend at `http://127.0.0.1:5173`.
+This runs the FastAPI backend at `http://0.0.0.0:8000` and the Vite frontend at `http://0.0.0.0:5173`.
+From another device on the same network, open `http://YOUR_MAC_LOCAL_IP:5173`.
 Press `Ctrl+C` once to stop both.
+
+For iPad microphone access over the local network, serve the frontend over HTTPS:
+
+```bash
+pnpm dev:cert
+pnpm dev
+```
+
+Then open the HTTPS network URL shown by Vite, such as `https://YOUR_MAC_LOCAL_IP:5173`.
+If the iPad says the connection is not private, install and trust `frontend/certs/nova-dev.crt` on the iPad.
 
 ## Frontend
 

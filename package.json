@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
+    "dev:cert": "node scripts/create-dev-cert.mjs",
     "dev:frontend": "pnpm --dir frontend dev",
     "dev:backend": "node scripts/dev-backend.mjs"
   },

@@ -188,6 +188,49 @@ button {
   z-index: 4;
 }
 
+.voice-mode-button {
+  align-items: center;
+  background: rgba(255, 250, 242, 0.88);
+  border: 2px solid rgba(0, 31, 78, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(24, 77, 71, 0.12);
+  color: var(--camp-navy);
+  cursor: pointer;
+  display: grid;
+  gap: 7px;
+  justify-items: center;
+  min-height: 72px;
+  min-width: 104px;
+  padding: 12px 14px;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.voice-mode-button span {
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.1;
+  max-width: 88px;
+  text-align: center;
+}
+
+.voice-mode-button:hover {
+  transform: translateY(-1px);
+}
+
+.voice-mode-button.active {
+  background: var(--camp-sky);
+  border-color: rgba(0, 31, 78, 0.18);
+  box-shadow:
+    0 16px 34px rgba(24, 168, 197, 0.22),
+    0 0 0 7px rgba(24, 168, 197, 0.14);
+  color: #ffffff;
+}
+
 .record-button {
   align-items: center;
   aspect-ratio: 1;
@@ -784,6 +827,12 @@ button {
     margin-top: -6px;
   }
 
+  .voice-mode-button {
+    min-height: 64px;
+    min-width: 94px;
+    padding: 10px 12px;
+  }
+
   .record-button {
     min-height: 124px;
     width: 124px;
@@ -815,6 +864,21 @@ button {
   .speech-bubble p {
     font-size: clamp(18px, 5vw, 24px);
     -webkit-line-clamp: 3;
+  }
+
+  .touch-controls {
+    gap: 10px;
+  }
+
+  .voice-mode-button {
+    min-height: 64px;
+    min-width: 88px;
+    padding: 10px;
+  }
+
+  .voice-mode-button span {
+    font-size: 12px;
+    max-width: 72px;
   }
 
   .record-button {
@@ -850,6 +914,11 @@ button {
 
   .record-button span {
     font-size: 16px;
+  }
+
+  .voice-mode-button {
+    min-height: 58px;
+    min-width: 82px;
   }
 }
 
