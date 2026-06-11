@@ -1,6 +1,6 @@
 :root {
   color: #17211c;
-  background: #f6f7f2;
+  background: #f7f5eb;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -12,91 +12,270 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overscroll-behavior: none;
 }
 
 button {
   font: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app-shell {
-  align-items: center;
-  background: linear-gradient(135deg, #f6f7f2 0%, #e6efe9 56%, #eef2fb 100%);
-  display: flex;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(71, 204, 191, 0.28), transparent 28%),
+    radial-gradient(circle at 28% 22%, rgba(255, 210, 97, 0.26), transparent 22%),
+    radial-gradient(circle at 78% 78%, rgba(122, 144, 212, 0.18), transparent 30%),
+    linear-gradient(145deg, #fbf7e8 0%, #eaf4ed 50%, #eaf0fb 100%);
   min-height: 100vh;
-  padding: 32px;
+  overflow: hidden;
+  position: relative;
+}
+
+.app-shell::before {
+  background:
+    linear-gradient(rgba(24, 77, 71, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 77, 71, 0.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+  content: "";
+  inset: 0;
+  mask-image: radial-gradient(circle at center, black, transparent 76%);
+  opacity: 0.55;
+  pointer-events: none;
+  position: absolute;
 }
 
 .assistant-panel {
-  margin: 0 auto;
-  max-width: 920px;
-  width: 100%;
-}
-
-.assistant-hero {
-  align-items: center;
   display: grid;
-  gap: 28px;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
-  margin-bottom: 34px;
-}
-
-.brand-row {
-  align-items: center;
-  display: flex;
-  gap: 18px;
-  margin-bottom: 0;
-}
-
-.brand-mark {
-  align-items: center;
-  background: #184d47;
-  border-radius: 8px;
-  color: #fff7df;
-  display: flex;
-  height: 64px;
-  justify-content: center;
-  width: 64px;
-}
-
-h1 {
-  font-size: clamp(44px, 8vw, 76px);
-  line-height: 0.95;
-  margin: 0;
-}
-
-.brand-row p {
-  color: #4b5b54;
-  font-size: 18px;
-  margin: 8px 0 0;
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  min-height: 100dvh;
+  padding: clamp(18px, 3vw, 34px);
+  position: relative;
+  z-index: 1;
 }
 
 .character-stage {
   align-items: center;
   display: grid;
   justify-items: center;
+  min-height: 0;
+  position: relative;
 }
 
-.status-pill {
-  background: rgba(255, 250, 242, 0.78);
-  border: 1px solid rgba(24, 77, 71, 0.14);
+.ambient-label {
+  color: rgba(23, 33, 28, 0.82);
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  left: 50%;
+  position: absolute;
+  top: clamp(10px, 3vh, 30px);
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.ambient-label h1 {
+  font-size: clamp(22px, 4vw, 34px);
+  letter-spacing: 0;
+  line-height: 0.95;
+  margin: 0;
+}
+
+.ambient-label p {
+  background: rgba(255, 250, 242, 0.56);
+  border: 1px solid rgba(24, 77, 71, 0.08);
   border-radius: 999px;
-  color: #184d47;
-  font-size: 14px;
-  font-weight: 800;
+  color: #32564f;
+  font-size: clamp(13px, 2vw, 16px);
+  font-weight: 750;
   line-height: 1;
-  margin: -12px 0 0;
-  padding: 10px 14px;
+  margin: 0;
+  padding: 9px 13px;
+}
+
+.speech-bubble {
+  background: rgba(255, 250, 242, 0.76);
+  border: 1px solid rgba(24, 77, 71, 0.12);
+  border-radius: 8px;
+  bottom: clamp(12px, 3vh, 34px);
+  box-shadow: 0 20px 60px rgba(43, 52, 48, 0.14);
+  color: #17211c;
+  max-width: min(620px, 86vw);
+  padding: 16px 18px;
+  position: absolute;
+  transform: translateY(0);
+  z-index: 3;
+}
+
+.speech-bubble::after {
+  background: inherit;
+  border-bottom: 1px solid rgba(24, 77, 71, 0.12);
+  border-right: 1px solid rgba(24, 77, 71, 0.12);
+  content: "";
+  height: 14px;
+  left: 50%;
+  position: absolute;
+  top: -7px;
+  transform: translateX(-50%) rotate(225deg);
+  width: 14px;
+}
+
+.speech-bubble p {
+  font-size: clamp(16px, 2.2vw, 21px);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.touch-controls {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  padding: 6px 0 max(12px, env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 4;
+}
+
+.record-button {
+  align-items: center;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.35), transparent 28%),
+    #f2b84b;
+  border: 0;
+  border-radius: 50%;
+  box-shadow:
+    0 24px 54px rgba(145, 100, 27, 0.28),
+    inset 0 -5px 0 rgba(22, 33, 29, 0.12);
+  color: #16211d;
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  grid-template-rows: 36px auto;
+  justify-items: center;
+  min-height: 132px;
+  padding: 26px;
+  place-content: center;
+  transition:
+    background 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  width: clamp(132px, 18vw, 168px);
+}
+
+.record-button span {
+  font-size: clamp(17px, 2.2vw, 21px);
+  font-weight: 850;
+  line-height: 1;
+}
+
+.record-button:hover:not(:disabled) {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.4), transparent 28%),
+    #ffc961;
+  transform: translateY(-2px) scale(1.015);
+}
+
+.record-button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+}
+
+.record-button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.record-button.recording {
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.28), transparent 28%),
+    #d94b3d;
+  box-shadow:
+    0 24px 56px rgba(145, 52, 40, 0.3),
+    0 0 0 14px rgba(217, 75, 61, 0.12),
+    inset 0 -5px 0 rgba(22, 33, 29, 0.12);
+  color: #fffaf2;
+}
+
+.replay-button {
+  align-items: center;
+  aspect-ratio: 1;
+  background: rgba(24, 77, 71, 0.94);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 16px 34px rgba(24, 77, 71, 0.22);
+  color: #fff7df;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  min-height: 72px;
+  padding: 0;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+  width: 72px;
+}
+
+.replay-button:hover {
+  background: #23665f;
+  transform: translateY(-1px);
+}
+
+.error-message {
+  align-self: start;
+  background: rgba(255, 241, 238, 0.86);
+  border: 1px solid rgba(217, 75, 61, 0.22);
+  border-radius: 8px;
+  color: #762a21;
+  justify-self: center;
+  margin: 10px 0 0;
+  max-width: min(620px, 88vw);
+  padding: 13px 15px;
+  position: relative;
+  width: fit-content;
+  z-index: 4;
+}
+
+.heard-line {
+  color: rgba(23, 33, 28, 0.62);
+  font-size: clamp(13px, 1.8vw, 16px);
+  justify-self: center;
+  line-height: 1.35;
+  margin: 10px 0 0;
+  max-width: min(620px, 88vw);
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 4;
+}
+
+.heard-line span {
+  color: #32564f;
+  font-weight: 850;
 }
 
 .nova-character {
+  --nova-state-color: #40c7bd;
   color: #184d47;
-  height: clamp(190px, 26vw, 280px);
+  height: min(78dvh, 860px);
+  min-height: 420px;
   position: relative;
-  width: clamp(190px, 26vw, 280px);
+  transform: translateY(2vh);
+  transition:
+    filter 280ms ease,
+    transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  width: min(94vw, 860px);
 }
 
 .nova-character-svg {
@@ -106,37 +285,74 @@ h1 {
   width: 100%;
 }
 
+.nova-aura {
+  fill: var(--nova-state-color);
+  opacity: 0.08;
+  transform-origin: 130px 136px;
+  transition:
+    fill 240ms ease,
+    opacity 240ms ease;
+}
+
 .nova-halo {
   fill: none;
-  opacity: 0.4;
-  stroke: #69b5ad;
+  opacity: 0.36;
+  stroke: var(--nova-state-color);
   stroke-width: 2;
   transform-origin: 130px 136px;
+  transition:
+    opacity 220ms ease,
+    stroke 240ms ease,
+    transform 320ms ease;
 }
 
 .nova-halo.outer {
-  opacity: 0.18;
+  opacity: 0.16;
 }
 
 .nova-halo.middle {
   opacity: 0.28;
 }
 
+.nova-halo.inner {
+  opacity: 0.18;
+}
+
 .nova-wave {
   fill: none;
   opacity: 0;
-  stroke: #2c8b83;
+  stroke: var(--nova-state-color);
   stroke-linecap: round;
   stroke-width: 8;
   transform-origin: 130px 140px;
+  transition:
+    opacity 180ms ease,
+    stroke 240ms ease;
+}
+
+.nova-floor-shadow {
+  animation: nova-shadow-bounce 3.2s ease-in-out infinite;
+  fill: #10231f;
+  opacity: 0.13;
+  transform-origin: 130px 228px;
+}
+
+.nova-body {
+  animation: nova-bounce 3.2s ease-in-out infinite;
+  transform-origin: 130px 150px;
+  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nova-antenna {
   stroke: #184d47;
+  transition: stroke 240ms ease;
 }
 
 .nova-antenna-dot {
   fill: #f2b84b;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 240ms ease;
 }
 
 .nova-shell {
@@ -147,9 +363,24 @@ h1 {
 
 .nova-core {
   fill: url("#nova-core");
+  transition:
+    fill 240ms ease,
+    filter 240ms ease;
 }
 
-.nova-eye {
+.nova-face {
+  transform-origin: 130px 140px;
+  transition: transform 300ms ease;
+}
+
+.nova-eye-wrap {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 260ms ease;
+}
+
+.nova-eye,
+.nova-eye-lid {
   fill: none;
   stroke: #fffaf2;
   stroke-linecap: round;
@@ -158,43 +389,52 @@ h1 {
   transform-origin: center;
 }
 
+.nova-eye {
+  animation: nova-blink 5.4s infinite;
+}
+
+.nova-eye-lid {
+  opacity: 0;
+}
+
 .mouth-smile {
   fill: none;
+  opacity: 1;
   stroke: #fffaf2;
   stroke-linecap: round;
   stroke-width: 8;
+  transition: opacity 160ms ease;
 }
 
 .mouth-bars {
   fill: #fffaf2;
   opacity: 0;
   transform-origin: 134px 156px;
+  transition: opacity 160ms ease;
+}
+
+.mouth-bars rect {
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .nova-thinking-sparks {
   fill: #f2b84b;
   opacity: 0;
   transform-origin: 130px 130px;
+  transition: opacity 180ms ease;
 }
 
-.nova-body {
-  animation: nova-breathe 3.8s ease-in-out infinite;
-  transform-origin: 130px 150px;
+.emotion-happy .nova-eye-wrap.left,
+.emotion-happy .nova-eye-wrap.right {
+  transform: translateY(3px) rotate(180deg);
 }
 
-.emotion-happy .nova-eye.left {
-  transform: translateY(2px) rotate(180deg);
-}
-
-.emotion-happy .nova-eye.right {
-  transform: translateY(2px) rotate(180deg);
-}
-
-.emotion-confused .nova-eye.left {
+.emotion-confused .nova-eye-wrap.left {
   transform: translateY(2px) rotate(10deg);
 }
 
-.emotion-confused .nova-eye.right {
+.emotion-confused .nova-eye-wrap.right {
   transform: translateY(2px) rotate(-10deg);
 }
 
@@ -202,22 +442,52 @@ h1 {
   fill: #ffcf5c;
 }
 
-.mode-idle .nova-halo.middle {
-  animation: nova-soft-pulse 3s ease-in-out infinite;
+.mode-idle .nova-halo.middle,
+.mode-idle .nova-halo.inner {
+  animation: nova-ring-pulse 3s ease-in-out infinite;
+}
+
+.mode-listening {
+  --nova-state-color: #d94b3d;
+}
+
+.mode-listening .nova-body {
+  animation: nova-listen-bounce 1.05s ease-in-out infinite;
+}
+
+.mode-listening .nova-floor-shadow {
+  animation: nova-shadow-listen 1.05s ease-in-out infinite;
 }
 
 .mode-listening .nova-wave {
-  animation: nova-wave-listen 1.1s ease-in-out infinite;
-  opacity: 0.72;
+  animation: nova-wave-listen 1.05s ease-in-out infinite;
+  opacity: 0.78;
 }
 
 .mode-listening .nova-wave.right {
   animation-delay: 120ms;
 }
 
+.mode-listening .nova-aura,
+.mode-listening .nova-halo.outer {
+  animation: nova-aura-pulse 1.05s ease-in-out infinite;
+}
+
 .mode-listening .nova-antenna-dot {
-  animation: nova-dot-pulse 900ms ease-in-out infinite;
+  animation: nova-dot-pulse 860ms ease-in-out infinite;
   fill: #d94b3d;
+}
+
+.mode-thinking {
+  --nova-state-color: #6b84d2;
+}
+
+.mode-thinking .nova-body {
+  animation: nova-thinking-float 1.8s ease-in-out infinite;
+}
+
+.mode-thinking .nova-face {
+  animation: nova-look-around 2.2s ease-in-out infinite;
 }
 
 .mode-thinking .nova-thinking-sparks {
@@ -229,13 +499,32 @@ h1 {
   animation: nova-core-think 1.4s ease-in-out infinite;
 }
 
+.mode-speaking {
+  --nova-state-color: #1f8f7f;
+}
+
+.mode-speaking .nova-body {
+  animation: nova-speaking-bounce 780ms ease-in-out infinite;
+}
+
+.mode-speaking .nova-floor-shadow {
+  animation: nova-shadow-speaking 780ms ease-in-out infinite;
+}
+
+.mode-speaking .nova-halo.inner {
+  animation: nova-ring-pulse 780ms ease-in-out infinite;
+}
+
 .mode-speaking .mouth-smile {
   opacity: 0;
 }
 
 .mode-speaking .mouth-bars {
-  animation: nova-talk 720ms ease-in-out infinite;
   opacity: 1;
+}
+
+.mode-speaking .mouth-bars rect {
+  animation: nova-talk 640ms ease-in-out infinite;
 }
 
 .mode-speaking .mouth-bars rect:nth-child(2) {
@@ -250,129 +539,99 @@ h1 {
   animation-delay: 250ms;
 }
 
+.mode-error {
+  --nova-state-color: #bd5d51;
+  filter: saturate(0.92);
+}
+
+.mode-error .nova-body {
+  animation: nova-error-wobble 2.1s ease-in-out infinite;
+}
+
 .mode-error .nova-core {
   fill: #bd5d51;
 }
 
-.mode-error .nova-body {
-  animation: none;
-  transform: rotate(-2deg);
+.mode-error .nova-aura {
+  opacity: 0.14;
 }
 
-.record-button {
-  align-items: center;
-  background: #f2b84b;
-  border: 0;
-  border-radius: 8px;
-  box-shadow: 0 18px 42px rgba(43, 52, 48, 0.18);
-  color: #16211d;
-  cursor: pointer;
-  display: flex;
-  gap: 18px;
-  justify-content: center;
-  min-height: 112px;
-  padding: 28px;
-  transition:
-    background 160ms ease,
-    transform 160ms ease,
-    box-shadow 160ms ease;
-  width: 100%;
-}
-
-.record-button span {
-  font-size: clamp(26px, 6vw, 48px);
-  font-weight: 800;
-  line-height: 1;
-}
-
-.record-button:hover:not(:disabled) {
-  background: #ffc961;
-  transform: translateY(-1px);
-}
-
-.record-button:disabled {
-  cursor: wait;
-  opacity: 0.78;
-}
-
-.record-button.recording {
-  background: #d94b3d;
-  color: #fffaf2;
-}
-
-.replay-button {
-  align-items: center;
-  background: #184d47;
-  border: 0;
-  border-radius: 8px;
-  color: #fff7df;
-  cursor: pointer;
-  display: flex;
-  gap: 10px;
-  margin-top: 18px;
-  padding: 14px 18px;
-}
-
-.error-message {
-  background: #fff1ee;
-  border-left: 4px solid #d94b3d;
-  color: #762a21;
-  margin-top: 24px;
-  padding: 14px 16px;
-}
-
-.debug-panel {
-  border-top: 1px solid rgba(23, 33, 28, 0.16);
-  display: grid;
-  gap: 22px;
-  margin-top: 34px;
-  padding-top: 26px;
-}
-
-.debug-panel span {
-  color: #66766e;
-  display: block;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.debug-panel p {
-  font-size: 20px;
-  line-height: 1.5;
-  margin: 0;
-}
-
-@media (max-width: 560px) {
-  .app-shell {
-    align-items: flex-start;
-    padding: 24px 18px;
+@media (orientation: landscape) and (min-width: 900px) {
+  .assistant-panel {
+    padding-bottom: 18px;
   }
 
-  .assistant-hero {
-    gap: 22px;
-    grid-template-columns: 1fr;
-    justify-items: center;
-    margin-bottom: 28px;
-    text-align: center;
-  }
-
-  .brand-row {
-    align-items: center;
-    flex-direction: column;
-    gap: 14px;
+  .ambient-label {
+    top: 18px;
   }
 
   .nova-character {
-    height: 210px;
-    width: 210px;
+    height: min(60dvh, 560px);
+    min-height: 340px;
+    transform: translateY(3vh);
+    width: min(66vw, 620px);
+  }
+
+  .touch-controls {
+    margin-top: -6px;
   }
 
   .record-button {
-    min-height: 96px;
-    padding: 22px 18px;
+    min-height: 124px;
+    width: 124px;
+  }
+
+  .replay-button {
+    min-height: 64px;
+    width: 64px;
+  }
+}
+
+@media (max-width: 720px) {
+  .assistant-panel {
+    padding: 20px 16px;
+  }
+
+  .nova-character {
+    height: min(70dvh, 560px);
+    min-height: 360px;
+    transform: translateY(3vh);
+    width: min(112vw, 560px);
+  }
+
+  .record-button {
+    min-height: 118px;
+    width: 118px;
+  }
+
+  .replay-button {
+    min-height: 64px;
+    width: 64px;
+  }
+}
+
+@media (max-height: 720px) {
+  .ambient-label {
+    top: 10px;
+  }
+
+  .ambient-label p {
+    display: none;
+  }
+
+  .nova-character {
+    height: min(70dvh, 500px);
+    min-height: 300px;
+    transform: translateY(5vh);
+  }
+
+  .record-button {
+    min-height: 104px;
+    width: 104px;
+  }
+
+  .record-button span {
+    font-size: 16px;
   }
 }
 
@@ -387,27 +646,123 @@ h1 {
   }
 }
 
-@keyframes nova-breathe {
+@keyframes nova-bounce {
   0%,
   100% {
     transform: translateY(0) scale(1);
   }
 
   50% {
-    transform: translateY(-4px) scale(1.018);
+    transform: translateY(-5px) scale(1.012);
   }
 }
 
-@keyframes nova-soft-pulse {
+@keyframes nova-listen-bounce {
   0%,
   100% {
-    opacity: 0.24;
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-10px) scale(1.025);
+  }
+}
+
+@keyframes nova-speaking-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-6px) scale(1.018);
+  }
+}
+
+@keyframes nova-thinking-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes nova-error-wobble {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes nova-shadow-bounce {
+  0%,
+  100% {
+    opacity: 0.13;
+    transform: scaleX(1);
+  }
+
+  50% {
+    opacity: 0.09;
+    transform: scaleX(0.86);
+  }
+}
+
+@keyframes nova-shadow-listen {
+  0%,
+  100% {
+    opacity: 0.13;
+    transform: scaleX(1);
+  }
+
+  50% {
+    opacity: 0.08;
+    transform: scaleX(0.8);
+  }
+}
+
+@keyframes nova-shadow-speaking {
+  0%,
+  100% {
+    opacity: 0.13;
+    transform: scaleX(1);
+  }
+
+  50% {
+    opacity: 0.1;
+    transform: scaleX(0.9);
+  }
+}
+
+@keyframes nova-ring-pulse {
+  0%,
+  100% {
+    opacity: 0.2;
     transform: scale(0.98);
   }
 
   50% {
-    opacity: 0.44;
-    transform: scale(1.04);
+    opacity: 0.5;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes nova-aura-pulse {
+  0%,
+  100% {
+    opacity: 0.08;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 0.18;
+    transform: scale(1.08);
   }
 }
 
@@ -415,12 +770,12 @@ h1 {
   0%,
   100% {
     opacity: 0.2;
-    transform: scaleX(0.88);
+    transform: scaleX(0.86);
   }
 
   50% {
-    opacity: 0.78;
-    transform: scaleX(1.08);
+    opacity: 0.84;
+    transform: scaleX(1.14);
   }
 }
 
@@ -431,7 +786,20 @@ h1 {
   }
 
   50% {
-    transform: scale(1.18);
+    transform: scale(1.22);
+  }
+}
+
+@keyframes nova-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  94%,
+  96% {
+    transform: scaleY(0.08);
   }
 }
 
@@ -439,12 +807,27 @@ h1 {
   0%,
   100% {
     opacity: 0.2;
-    transform: translateY(2px) rotate(0deg);
+    transform: translateY(2px) rotate(0deg) scale(0.92);
   }
 
   50% {
     opacity: 1;
-    transform: translateY(-5px) rotate(8deg);
+    transform: translateY(-6px) rotate(10deg) scale(1.08);
+  }
+}
+
+@keyframes nova-look-around {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  35% {
+    transform: translateX(-3px);
+  }
+
+  70% {
+    transform: translateX(3px);
   }
 }
 
@@ -455,17 +838,17 @@ h1 {
   }
 
   50% {
-    filter: saturate(1.35) brightness(1.08);
+    filter: saturate(1.35) brightness(1.1);
   }
 }
 
 @keyframes nova-talk {
   0%,
   100% {
-    transform: scaleY(0.72);
+    transform: scaleY(0.62);
   }
 
   50% {
-    transform: scaleY(1.12);
+    transform: scaleY(1.2);
   }
 }

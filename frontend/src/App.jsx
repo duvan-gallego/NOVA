@@ -1,4 +1,4 @@
-import { Mic, Play, Square, Volume2 } from "lucide-react";
+import { Mic, Play, Square } from "lucide-react";
 import React from "react";
 import { useRef, useState } from "react";
 import { NovaCharacter } from "./components/NovaCharacter.jsx";
@@ -111,57 +111,46 @@ export function App() {
   return (
     <main className="app-shell">
       <section className="assistant-panel" aria-label="NOVA">
-        <div className="assistant-hero">
-          <div className="brand-row">
-            <div className="brand-mark">
-              <Volume2 size={28} strokeWidth={2.4} />
-            </div>
-            <div>
-              <h1>NOVA</h1>
-              <p>Preguntas habladas, respuestas en español.</p>
-            </div>
+        <div className="character-stage">
+          <div className="ambient-label">
+            <h1>NOVA</h1>
+            <p aria-live="polite">{statusLabel(characterMode)}</p>
           </div>
 
-          <div className="character-stage">
-            <NovaCharacter mode={characterMode} emotion={characterEmotion} />
-            <p className="status-pill" aria-live="polite">{statusLabel(characterMode)}</p>
-          </div>
+          <NovaCharacter mode={characterMode} emotion={characterEmotion} />
+
+          {answer && !error && (
+            <div className="speech-bubble">
+              <p>{answer}</p>
+            </div>
+          )}
         </div>
 
-        <button
-          className={`record-button ${isRecording ? "recording" : ""}`}
-          onClick={isRecording ? stopRecording : startRecording}
-          disabled={isProcessing}
-          type="button"
-        >
-          {isRecording ? <Square size={34} fill="currentColor" /> : <Mic size={40} />}
-          <span>{buttonLabel(status)}</span>
-        </button>
-
-        {audioUrl && (
-          <button className="replay-button" onClick={() => playAudio()} type="button">
-            <Play size={18} fill="currentColor" />
-            Reproducir respuesta
+        <div className="touch-controls">
+          <button
+            className={`record-button ${isRecording ? "recording" : ""}`}
+            onClick={isRecording ? stopRecording : startRecording}
+            disabled={isProcessing}
+            aria-label={buttonLabel(status)}
+            type="button"
+          >
+            {isRecording ? <Square size={32} fill="currentColor" /> : <Mic size={36} />}
+            <span>{buttonLabel(status)}</span>
           </button>
-        )}
+
+          {audioUrl && (
+            <button className="replay-button" onClick={() => playAudio()} type="button" title="Reproducir respuesta">
+              <Play size={22} fill="currentColor" />
+            </button>
+          )}
+        </div>
 
         {error && <p className="error-message">{error}</p>}
 
-        {(question || answer) && (
-          <div className="debug-panel">
-            {question && (
-              <div>
-                <span>Pregunta</span>
-                <p>{question}</p>
-              </div>
-            )}
-            {answer && (
-              <div>
-                <span>Respuesta</span>
-                <p>{answer}</p>
-              </div>
-            )}
-          </div>
+        {question && (
+          <p className="heard-line">
+            <span>Escuche:</span> {question}
+          </p>
         )}
       </section>
     </main>
@@ -171,8 +160,8 @@ export function App() {
 function buttonLabel(status) {
   if (status === "recording") return "Detener";
   if (status === "processing") return "Pensando...";
-  if (status === "playing") return "Respondiendo...";
-  return "Grabar pregunta";
+  if (status === "playing") return "Hablando...";
+  return "Hablar";
 }
 
 function getCharacterMode(status) {
@@ -191,11 +180,11 @@ function getCharacterEmotion(status, answer) {
 }
 
 function statusLabel(mode) {
-  if (mode === "listening") return "Escuchando";
-  if (mode === "thinking") return "Pensando";
-  if (mode === "speaking") return "Respondiendo";
+  if (mode === "listening") return "Te escucho";
+  if (mode === "thinking") return "Estoy pensando";
+  if (mode === "speaking") return "Te respondo";
   if (mode === "error") return "Necesito ayuda";
-  return "Lista";
+  return "Toca para hablar";
 }
 
 function getRecorderOptions() {
