@@ -5,6 +5,8 @@ import { NovaCharacter } from "./components/NovaCharacter.jsx";
 
 const API_URL = (import.meta.env.VITE_NOVA_API_URL ?? "").replace(/\/$/, "");
 const FOLLOW_UP_TIMEOUT_MS = 9000;
+const SILENT_AUDIO_URL =
+  "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
 const WAKE_PHRASES = ["hola nova", "oye nova", "nova"];
 
 export function App() {
@@ -51,6 +53,7 @@ export function App() {
   }, [voiceMode]);
 
   async function startRecording() {
+    unlockAudioPlayback();
     setError("");
     setQuestion("");
     setAnswer("");
@@ -179,12 +182,12 @@ export function App() {
     stopSpeechRecognition();
     clearFollowUpTimer();
 
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
-    const audio = new Audio(url);
-    audioRef.current = audio;
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.src = url;
+    audio.muted = false;
+    audio.currentTime = 0;
     audio.onended = () => {
       setStatus("idle");
       if (voiceModeRef.current) {
@@ -193,6 +196,7 @@ export function App() {
     };
     audio.play().catch(() => {
       setStatus("idle");
+      setVoiceStatus("Toca reproducir");
       if (voiceModeRef.current) {
         startFollowUpListening();
       }
@@ -201,12 +205,18 @@ export function App() {
 
   function revokeAudioUrl() {
     if (audioUrl) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeAttribute("src");
+        audioRef.current.load();
+      }
       URL.revokeObjectURL(audioUrl);
       setAudioUrl("");
     }
   }
 
   function toggleVoiceMode() {
+    unlockAudioPlayback();
     if (!voiceAvailable) {
       setError("Este navegador no tiene reconocimiento de voz integrado. Prueba Chrome, Edge o Brave.");
       return;
@@ -335,9 +345,39 @@ export function App() {
     }
   }
 
+  function unlockAudioPlayback() {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const previousSrc = audio.currentSrc || audio.src;
+    if (!previousSrc) {
+      audio.src = SILENT_AUDIO_URL;
+    }
+
+    audio.muted = true;
+    const playPromise = audio.play();
+    if (!playPromise) return;
+
+    playPromise
+      .then(() => {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.muted = false;
+        if (!previousSrc) {
+          audio.removeAttribute("src");
+          audio.load();
+        }
+      })
+      .catch(() => {
+        audio.muted = false;
+      });
+  }
+
   return (
     <main className="app-shell">
       <section className="assistant-panel" aria-label="NOVA">
+        <audio ref={audioRef} preload="auto" playsInline />
+
         <div className="character-stage">
           <div className="ambient-label">
             <h1>NOVA</h1>
