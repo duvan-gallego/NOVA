@@ -39,7 +39,10 @@ export function NovaCharacter({ mode = "idle", emotion = "calm", dialogueGlance 
           </g>
         </g>
 
-        <ellipse className="nova-floor-shadow" cx="130" cy="228" rx="58" ry="12" />
+        <g className="nova-ground-shadow">
+          <ellipse className="nova-floor-shadow soft" cx="130" cy="229" rx="72" ry="13" />
+          <ellipse className="nova-floor-shadow contact" cx="130" cy="224" rx="47" ry="6" />
+        </g>
 
         <g className="nova-body" filter="url(#nova-shadow)">
           <g className="nova-arms">

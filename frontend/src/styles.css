@@ -329,11 +329,23 @@ button {
     stroke 240ms ease;
 }
 
-.nova-floor-shadow {
+.nova-ground-shadow {
   animation: nova-shadow-bounce 3.2s ease-in-out infinite;
-  fill: var(--camp-navy);
-  opacity: 0.13;
   transform-origin: 130px 228px;
+}
+
+.nova-floor-shadow {
+  fill: var(--camp-navy);
+}
+
+.nova-floor-shadow.soft {
+  filter: blur(3px);
+  opacity: 0.1;
+}
+
+.nova-floor-shadow.contact {
+  filter: blur(1px);
+  opacity: 0.16;
 }
 
 .nova-body {
@@ -534,12 +546,28 @@ button {
   animation: nova-ring-pulse 3s ease-in-out infinite;
 }
 
+.mode-idle .nova-body {
+  animation: nova-idle-breathe 5.8s ease-in-out infinite;
+}
+
+.mode-idle .nova-ground-shadow {
+  animation: nova-shadow-breathe 5.8s ease-in-out infinite;
+}
+
 .mode-idle .nova-eye-wrap {
-  animation: nova-eye-blink 5.6s infinite;
+  animation: nova-eye-blink 8.4s infinite;
 }
 
 .mode-idle .nova-pupil {
-  animation: nova-idle-gaze 7s ease-in-out infinite;
+  animation: nova-idle-gaze 9.2s ease-in-out infinite;
+}
+
+.mode-idle .nova-antenna {
+  animation: nova-idle-antenna 8.8s ease-in-out infinite;
+}
+
+.mode-idle .nova-arm.left {
+  animation: nova-idle-wave 10.5s ease-in-out infinite;
 }
 
 .mode-listening {
@@ -550,7 +578,7 @@ button {
   animation: nova-listen-bounce 1.05s ease-in-out infinite;
 }
 
-.mode-listening .nova-floor-shadow {
+.mode-listening .nova-ground-shadow {
   animation: nova-shadow-listen 1.05s ease-in-out infinite;
 }
 
@@ -632,7 +660,7 @@ button {
   animation: nova-speaking-bounce 780ms ease-in-out infinite;
 }
 
-.mode-speaking .nova-floor-shadow {
+.mode-speaking .nova-ground-shadow {
   animation: nova-shadow-speaking 780ms ease-in-out infinite;
 }
 
@@ -1189,6 +1217,17 @@ button {
   }
 }
 
+@keyframes nova-idle-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  48% {
+    transform: translateY(-3px) scale(1.008, 1.012);
+  }
+}
+
 @keyframes nova-listen-bounce {
   0%,
   100% {
@@ -1236,25 +1275,36 @@ button {
 @keyframes nova-shadow-bounce {
   0%,
   100% {
-    opacity: 0.13;
     transform: scaleX(1);
   }
 
   50% {
-    opacity: 0.09;
     transform: scaleX(0.86);
+  }
+}
+
+@keyframes nova-shadow-breathe {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  48% {
+    opacity: 0.78;
+    transform: scaleX(0.94);
   }
 }
 
 @keyframes nova-shadow-listen {
   0%,
   100% {
-    opacity: 0.13;
+    opacity: 1;
     transform: scaleX(1);
   }
 
   50% {
-    opacity: 0.08;
+    opacity: 0.62;
     transform: scaleX(0.8);
   }
 }
@@ -1262,12 +1312,12 @@ button {
 @keyframes nova-shadow-speaking {
   0%,
   100% {
-    opacity: 0.13;
+    opacity: 1;
     transform: scaleX(1);
   }
 
   50% {
-    opacity: 0.1;
+    opacity: 0.76;
     transform: scaleX(0.9);
   }
 }
@@ -1337,35 +1387,67 @@ button {
 
 @keyframes nova-eye-blink {
   0%,
-  45%,
-  49%,
-  92%,
-  96%,
+  38%,
+  41%,
+  76%,
+  79%,
   100% {
     transform: scaleY(1);
   }
 
-  47%,
-  94% {
+  39.5%,
+  77.5% {
     transform: scaleY(0.08);
   }
 }
 
 @keyframes nova-idle-gaze {
   0%,
-  28%,
+  24%,
   100% {
     transform: translate(0, 1px);
   }
 
-  36%,
-  52% {
-    transform: translate(-3px, 0);
+  32%,
+  47% {
+    transform: translate(-2px, 0);
   }
 
-  66%,
-  82% {
-    transform: translate(2px, 3px);
+  63%,
+  78% {
+    transform: translate(2px, 2px);
+  }
+}
+
+@keyframes nova-idle-antenna {
+  0%,
+  62%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  70% {
+    transform: rotate(-3deg);
+  }
+
+  78% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes nova-idle-wave {
+  0%,
+  68%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  74% {
+    transform: rotate(-7deg) translateY(-1px);
+  }
+
+  80% {
+    transform: rotate(2deg);
   }
 }
 
