@@ -188,68 +188,6 @@ button {
   z-index: 4;
 }
 
-.record-button {
-  align-items: center;
-  aspect-ratio: 1;
-  background:
-    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.35), transparent 28%),
-    var(--camp-yellow);
-  border: 0;
-  border-radius: 50%;
-  box-shadow:
-    0 24px 54px rgba(255, 115, 0, 0.26),
-    0 0 0 10px rgba(255, 207, 92, 0.18),
-    inset 0 -5px 0 rgba(0, 31, 78, 0.14);
-  color: var(--camp-navy);
-  cursor: pointer;
-  display: grid;
-  gap: 8px;
-  grid-template-rows: 36px auto;
-  justify-items: center;
-  min-height: 132px;
-  padding: 26px;
-  place-content: center;
-  transition:
-    background 180ms ease,
-    box-shadow 180ms ease,
-    color 180ms ease,
-    transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
-  width: clamp(132px, 18vw, 168px);
-}
-
-.record-button span {
-  font-size: clamp(17px, 2.2vw, 21px);
-  font-weight: 850;
-  line-height: 1;
-}
-
-.record-button:hover:not(:disabled) {
-  background:
-    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.4), transparent 28%),
-    #ffd34a;
-  transform: translateY(-2px) scale(1.015);
-}
-
-.record-button:active:not(:disabled) {
-  transform: translateY(1px) scale(0.98);
-}
-
-.record-button:disabled {
-  cursor: wait;
-  opacity: 0.72;
-}
-
-.record-button.recording {
-  background:
-    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.28), transparent 28%),
-    var(--camp-red);
-  box-shadow:
-    0 24px 56px rgba(145, 52, 40, 0.3),
-    0 0 0 14px rgba(217, 75, 61, 0.12),
-    inset 0 -5px 0 rgba(22, 33, 29, 0.12);
-  color: #fffaf2;
-}
-
 .error-message {
   align-self: start;
   background: rgba(255, 241, 238, 0.86);
@@ -821,10 +759,10 @@ button {
 
 .nova-character {
   align-self: center;
-  height: min(70dvh, 760px);
-  min-height: 390px;
+  height: min(76dvh, 830px);
+  min-height: 420px;
   transform: translateY(-1vh);
-  width: min(96vw, 820px);
+  width: min(104vw, 900px);
 }
 
 .character-button {
@@ -838,7 +776,7 @@ button {
   padding: 0;
   place-items: center;
   position: relative;
-  width: min(96vw, 820px);
+  width: min(104vw, 900px);
 }
 
 .character-button .nova-character {
@@ -871,11 +809,11 @@ button {
   font-size: clamp(13px, 1.7vw, 16px);
   font-weight: 900;
   gap: 6px;
-  left: 59%;
+  left: 56%;
   padding: 8px 11px;
   pointer-events: none;
   position: absolute;
-  top: 15%;
+  top: 13%;
   z-index: 5;
 }
 
@@ -891,99 +829,6 @@ button {
   min-height: 48px;
   margin-top: clamp(-76px, -7vh, -42px);
   padding-bottom: max(12px, env(safe-area-inset-bottom));
-}
-
-.record-button {
-  background:
-    radial-gradient(circle at 34% 27%, #fff9c8 0 9%, transparent 10%),
-    radial-gradient(circle at 50% 38%, #ffd65c 0 35%, #ffb90f 70%);
-  border: 5px solid rgba(255, 255, 255, 0.92);
-  box-shadow:
-    0 22px 48px rgba(255, 115, 0, 0.28),
-    0 0 0 11px rgba(255, 191, 24, 0.16),
-    0 0 45px rgba(255, 191, 24, 0.34),
-    inset 0 -6px 0 rgba(0, 31, 78, 0.12);
-  gap: 7px;
-  min-height: 132px;
-  overflow: visible;
-  position: relative;
-}
-
-.record-button::before,
-.record-button::after {
-  border: 3px solid rgba(255, 191, 24, 0.28);
-  border-radius: 50%;
-  content: "";
-  inset: -18px;
-  pointer-events: none;
-  position: absolute;
-}
-
-.record-button::before {
-  animation: energy-orbit 4s linear infinite;
-  border-bottom-color: transparent;
-  border-left-color: transparent;
-}
-
-.record-button::after {
-  animation: energy-orbit 5.5s linear infinite reverse;
-  border-right-color: transparent;
-  inset: -28px;
-  opacity: 0.55;
-}
-
-.record-button .energy-core {
-  align-items: center;
-  background: rgba(255, 255, 255, 0.48);
-  border-radius: 50%;
-  display: flex;
-  height: 48px;
-  justify-content: center;
-  width: 48px;
-}
-
-.record-button.recording {
-  background:
-    radial-gradient(circle at 34% 27%, rgba(255, 255, 255, 0.5) 0 9%, transparent 10%),
-    radial-gradient(circle at 50% 38%, #ff695f 0 35%, var(--camp-red) 72%);
-}
-
-.record-button.recording::before,
-.record-button.recording::after {
-  border-color: rgba(255, 45, 32, 0.25);
-  border-bottom-color: transparent;
-}
-
-.record-button:disabled::before,
-.record-button:disabled::after {
-  animation-duration: 1.4s;
-}
-
-.record-button.processing {
-  min-height: 72px;
-  opacity: 0.38;
-  pointer-events: none;
-  transform: scale(0.58);
-  width: 72px;
-}
-
-.record-button.processing .energy-core {
-  opacity: 0.45;
-}
-
-.record-button.processing::before,
-.record-button.processing::after {
-  opacity: 0.25;
-}
-
-.record-button.follow-up {
-  min-height: 108px;
-  width: 108px;
-}
-
-.record-button.follow-up .energy-core {
-  height: 40px;
-  width: 40px;
 }
 
 .conversation-control {
@@ -1045,12 +890,6 @@ button {
 
 .mode-idle .pose-idle {
   animation: nova-inviting-pose 4.6s ease-in-out infinite;
-}
-
-@keyframes energy-orbit {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @keyframes antenna-invitation {
@@ -1148,17 +987,17 @@ button {
   .nova-character {
     grid-column: 2;
     grid-row: 1;
-    height: min(72dvh, 570px);
+    height: min(77dvh, 610px);
     min-height: 340px;
     transform: translate(-2vw, 2vh);
-    width: min(66vw, 620px);
+    width: min(70vw, 670px);
   }
 
   .character-button {
     grid-column: 2;
     grid-row: 1;
     transform: translate(-2vw, 2vh);
-    width: min(66vw, 620px);
+    width: min(70vw, 670px);
   }
 
   .character-button .nova-character {
@@ -1187,11 +1026,6 @@ button {
     margin-top: -54px;
   }
 
-  .record-button {
-    min-height: 124px;
-    width: 124px;
-  }
-
 }
 
 @media (max-width: 720px) {
@@ -1200,14 +1034,14 @@ button {
   }
 
   .nova-character {
-    height: min(61dvh, 540px);
-    min-height: 340px;
+    height: min(67dvh, 590px);
+    min-height: 360px;
     transform: translateY(-1vh);
-    width: min(108vw, 560px);
+    width: min(116vw, 610px);
   }
 
   .character-button {
-    width: min(108vw, 560px);
+    width: min(116vw, 610px);
   }
 
   .character-button .nova-character {
@@ -1215,8 +1049,8 @@ button {
   }
 
   .character-tap-hint {
-    left: 57%;
-    top: 14%;
+    left: 55%;
+    top: 12%;
   }
 
   .character-dialogue {
@@ -1233,16 +1067,11 @@ button {
     gap: 10px;
   }
 
-  .record-button {
-    min-height: 118px;
-    width: 118px;
-  }
-
 }
 
 @media (max-height: 720px) {
   .nova-character {
-    height: min(66dvh, 480px);
+    height: min(69dvh, 510px);
     min-height: 300px;
     transform: translateY(1vh);
   }
@@ -1253,15 +1082,6 @@ button {
 
   .character-dialogue p {
     font-size: clamp(17px, 2.4vw, 23px);
-  }
-
-  .record-button {
-    min-height: 104px;
-    width: 104px;
-  }
-
-  .record-button span {
-    font-size: 16px;
   }
 
 }
