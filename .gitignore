@@ -9,3 +9,4 @@ backend/.env
 backend/.pycache/
 backend/**/__pycache__/
 backend/models/
+backend/data/memory.json
