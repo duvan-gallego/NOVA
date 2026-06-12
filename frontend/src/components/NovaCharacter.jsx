@@ -1,8 +1,11 @@
 import React from "react";
 
-export function NovaCharacter({ mode = "idle", emotion = "calm" }) {
+export function NovaCharacter({ mode = "idle", emotion = "calm", dialogueGlance = false }) {
   return (
-    <div className={`nova-character mode-${mode} emotion-${emotion}`} aria-hidden="true">
+    <div
+      className={`nova-character mode-${mode} emotion-${emotion}${dialogueGlance ? " dialogue-glance" : ""}`}
+      aria-hidden="true"
+    >
       <svg className="nova-character-svg" viewBox="0 0 260 260" role="img">
         <defs>
           <linearGradient id="nova-body" x1="65" x2="200" y1="54" y2="218">

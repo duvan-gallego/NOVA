@@ -1,4 +1,4 @@
-import { Mic, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import React from "react";
 import { useRef, useState } from "react";
 import { NovaCharacter } from "./components/NovaCharacter.jsx";
@@ -73,6 +73,7 @@ export function App() {
     status,
     voiceStatus,
   });
+  const dialogueCueKey = `${characterMode}-${captionIndex}-${dialogueText}`;
 
   async function startRecording() {
     unlockAudioPlayback();
@@ -325,13 +326,12 @@ export function App() {
             aria-label={characterActionLabel(status)}
             type="button"
           >
-            <NovaCharacter mode={characterMode} emotion={characterEmotion} />
-            {!answer && status === "idle" && (
-              <span className="character-tap-hint" aria-hidden="true">
-                <Mic size={18} />
-                Tócame
-              </span>
-            )}
+            <NovaCharacter
+              key={dialogueCueKey}
+              mode={characterMode}
+              emotion={characterEmotion}
+              dialogueGlance
+            />
           </button>
         </div>
 
