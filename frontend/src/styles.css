@@ -827,8 +827,69 @@ button {
   width: min(96vw, 820px);
 }
 
+.character-button {
+  align-self: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  justify-self: center;
+  padding: 0;
+  place-items: center;
+  position: relative;
+  width: min(96vw, 820px);
+}
+
+.character-button .nova-character {
+  width: 100%;
+}
+
+.character-button:focus-visible {
+  border-radius: 50%;
+  outline: 5px solid rgba(255, 191, 24, 0.65);
+  outline-offset: -12px;
+}
+
+.character-button:disabled {
+  cursor: wait;
+}
+
+.character-button:not(:disabled):active .nova-character {
+  transform: translateY(0) scale(0.985);
+}
+
+.character-tap-hint {
+  align-items: center;
+  animation: tap-hint-float 2.4s ease-in-out infinite;
+  background: rgba(255, 255, 255, 0.88);
+  border: 2px solid rgba(255, 191, 24, 0.32);
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(0, 31, 78, 0.1);
+  color: var(--camp-navy);
+  display: flex;
+  font-size: clamp(13px, 1.7vw, 16px);
+  font-weight: 900;
+  gap: 6px;
+  left: 59%;
+  padding: 8px 11px;
+  pointer-events: none;
+  position: absolute;
+  top: 15%;
+  z-index: 5;
+}
+
+.character-button.state-idle .nova-antenna-dot {
+  animation: antenna-invitation 1.8s ease-in-out infinite;
+}
+
+.character-button.state-listening .nova-antenna-dot {
+  filter: drop-shadow(0 0 8px rgba(255, 45, 32, 0.75));
+}
+
 .touch-controls {
-  margin-top: clamp(-34px, -3.5vh, -18px);
+  min-height: 48px;
+  margin-top: clamp(-76px, -7vh, -42px);
   padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 
@@ -956,7 +1017,7 @@ button {
 }
 
 .replay-answer {
-  margin-left: 12px;
+  margin-left: 0;
 }
 
 .error-message {
@@ -989,6 +1050,32 @@ button {
 @keyframes energy-orbit {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes antenna-invitation {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 2px rgba(255, 191, 24, 0.3));
+    transform: scale(1);
+  }
+
+  50% {
+    filter: drop-shadow(0 0 11px rgba(255, 191, 24, 0.85));
+    transform: scale(1.16);
+  }
+}
+
+@keyframes tap-hint-float {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: translateY(0) rotate(-2deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-5px) rotate(1deg);
   }
 }
 
@@ -1067,6 +1154,19 @@ button {
     width: min(66vw, 620px);
   }
 
+  .character-button {
+    grid-column: 2;
+    grid-row: 1;
+    transform: translate(-2vw, 2vh);
+    width: min(66vw, 620px);
+  }
+
+  .character-button .nova-character {
+    grid-column: auto;
+    grid-row: auto;
+    transform: none;
+  }
+
   .character-dialogue {
     align-self: center;
     grid-column: 1;
@@ -1084,7 +1184,7 @@ button {
   }
 
   .touch-controls {
-    margin-top: -60px;
+    margin-top: -54px;
   }
 
   .record-button {
@@ -1104,6 +1204,19 @@ button {
     min-height: 340px;
     transform: translateY(-1vh);
     width: min(108vw, 560px);
+  }
+
+  .character-button {
+    width: min(108vw, 560px);
+  }
+
+  .character-button .nova-character {
+    transform: none;
+  }
+
+  .character-tap-hint {
+    left: 57%;
+    top: 14%;
   }
 
   .character-dialogue {

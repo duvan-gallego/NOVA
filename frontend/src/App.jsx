@@ -1,4 +1,4 @@
-import { Mic, Play, Square } from "lucide-react";
+import { Mic, Play } from "lucide-react";
 import React from "react";
 import { useRef, useState } from "react";
 import { NovaCharacter } from "./components/NovaCharacter.jsx";
@@ -318,32 +318,24 @@ export function App() {
             <p>{dialogueText}</p>
           </div>
 
-          <NovaCharacter mode={characterMode} emotion={characterEmotion} />
+          <button
+            className={`character-button state-${characterMode}`}
+            onClick={handleCharacterInteraction}
+            disabled={isProcessing}
+            aria-label={characterActionLabel(status)}
+            type="button"
+          >
+            <NovaCharacter mode={characterMode} emotion={characterEmotion} />
+            {!answer && status === "idle" && (
+              <span className="character-tap-hint" aria-hidden="true">
+                <Mic size={18} />
+                Tócame
+              </span>
+            )}
+          </button>
         </div>
 
         <div className="touch-controls">
-          {!isPlaying && (
-            <button
-              className={`record-button ${isRecording ? "recording" : ""} ${isProcessing ? "processing" : ""} ${answer && status === "idle" ? "follow-up" : ""}`}
-              onClick={isRecording ? stopRecording : startRecording}
-              disabled={isProcessing}
-              aria-label={buttonLabel(status)}
-              type="button"
-            >
-              <span className="energy-core" aria-hidden="true">
-                {isRecording ? <Square size={28} fill="currentColor" /> : <Mic size={34} />}
-              </span>
-              {!isProcessing && <span>{buttonLabel(status)}</span>}
-            </button>
-          )}
-
-          {isPlaying && (
-            <button className="conversation-control stop-speaking" onClick={stopAudioPlayback} type="button">
-              <Square size={14} fill="currentColor" />
-              <span>Pausa</span>
-            </button>
-          )}
-
           {audioUrl && !isPlaying && !isProcessing && (
             <button className="conversation-control replay-answer" onClick={() => playAudio()} type="button">
               <Play size={15} fill="currentColor" />
@@ -358,13 +350,25 @@ export function App() {
       </section>
     </main>
   );
+
+  function handleCharacterInteraction() {
+    if (isPlaying) {
+      stopAudioPlayback();
+      return;
+    }
+    if (isRecording) {
+      stopRecording();
+      return;
+    }
+    startRecording();
+  }
 }
 
-function buttonLabel(status) {
-  if (status === "recording") return "Listo";
-  if (status === "processing") return "Pensando";
-  if (status === "playing") return "Escucha";
-  return "Cuéntame";
+function characterActionLabel(status) {
+  if (status === "recording") return "Terminar mi pregunta";
+  if (status === "processing") return "NOVA está pensando";
+  if (status === "playing") return "Pausar a NOVA";
+  return "Hablar con NOVA";
 }
 
 function getCharacterMode(status) {
@@ -383,11 +387,11 @@ function getCharacterEmotion(status, answer) {
 }
 
 function characterLine(mode) {
-  if (mode === "listening") return "¡Te escucho! Cuéntame tu pregunta.";
+  if (mode === "listening") return "¡Te escucho! Tócame otra vez cuando termines.";
   if (mode === "thinking") return "Déjame imaginarlo...";
   if (mode === "speaking") return "¡Mira lo que descubrí!";
   if (mode === "error") return "Uy, no te escuché bien. ¿Otra vez?";
-  return "¡Hola! ¿Qué quieres descubrir hoy?";
+  return "¡Hola! Tócame y cuéntame qué quieres descubrir hoy.";
 }
 
 function splitAnswerSentences(text) {
@@ -416,7 +420,7 @@ function getDialogueText({
     return answerSentences[Math.max(0, captionIndex)] ?? answerSentences[0];
   }
   if (voiceStatus) return voiceStatus;
-  if (answer && status === "idle") return "¿Quieres saber algo más?";
+  if (answer && status === "idle") return "¿Quieres saber algo más? Tócame y cuéntame.";
   return characterLine(characterMode);
 }
 
