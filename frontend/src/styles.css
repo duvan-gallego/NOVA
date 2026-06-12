@@ -250,40 +250,6 @@ button {
   color: #fffaf2;
 }
 
-.replay-button {
-  align-items: center;
-  aspect-ratio: 1;
-  background: var(--camp-navy);
-  border: 0;
-  border-radius: 50%;
-  box-shadow: 0 16px 34px rgba(24, 77, 71, 0.22);
-  color: #fff7df;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  min-height: 72px;
-  padding: 0;
-  transition:
-    background 180ms ease,
-    transform 180ms ease;
-  width: 72px;
-}
-
-.replay-button:hover {
-  background: #06366f;
-  transform: translateY(-1px);
-}
-
-.replay-button.stop-audio {
-  background: var(--camp-red);
-  box-shadow: 0 16px 34px rgba(145, 52, 40, 0.24);
-  color: #fffaf2;
-}
-
-.replay-button.stop-audio:hover {
-  background: #d6291e;
-}
-
 .error-message {
   align-self: start;
   background: rgba(255, 241, 238, 0.86);
@@ -452,6 +418,22 @@ button {
   transform-origin: top center;
 }
 
+.nova-arm-pose {
+  opacity: 0;
+  transform-origin: 130px 150px;
+  transition:
+    opacity 260ms ease,
+    transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mode-idle .pose-idle,
+.mode-listening .pose-listening,
+.mode-thinking .pose-thinking,
+.mode-speaking .pose-speaking,
+.mode-error .pose-idle {
+  opacity: 1;
+}
+
 .nova-antenna {
   stroke: var(--camp-navy);
   transform-origin: 130px 66px;
@@ -489,18 +471,33 @@ button {
   transition: transform 260ms ease;
 }
 
-.nova-eye,
 .nova-eye-lid {
   fill: none;
-  stroke: #fffaf2;
+  stroke: #54d4e1;
   stroke-linecap: round;
-  stroke-width: 8;
+  stroke-width: 5;
   transform-box: fill-box;
   transform-origin: center;
 }
 
-.nova-eye {
-  animation: nova-blink 5.2s infinite;
+.nova-eye-white {
+  fill: #fffdf5;
+  stroke: rgba(0, 31, 78, 0.12);
+  stroke-width: 1.5;
+}
+
+.nova-pupil {
+  fill: var(--camp-navy);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nova-eye-shine {
+  fill: #ffffff;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .nova-eye-lid {
@@ -523,16 +520,12 @@ button {
   transform-origin: center;
 }
 
-.mouth-bars {
+.mouth-talking {
   fill: #fffaf2;
   opacity: 0;
-  transform-origin: 134px 156px;
-  transition: opacity 160ms ease;
-}
-
-.mouth-bars rect {
   transform-box: fill-box;
   transform-origin: center;
+  transition: opacity 160ms ease;
 }
 
 .nova-thinking-sparks {
@@ -580,17 +573,12 @@ button {
   transform-origin: 213px 71px;
 }
 
-.emotion-happy .nova-eye-wrap.left,
-.emotion-happy .nova-eye-wrap.right {
-  transform: translateY(3px) rotate(180deg);
-}
-
 .emotion-confused .nova-eye-wrap.left {
-  transform: translateY(2px) rotate(10deg);
+  transform: translateY(2px) rotate(-7deg);
 }
 
 .emotion-confused .nova-eye-wrap.right {
-  transform: translateY(2px) rotate(-10deg);
+  transform: translateY(2px) rotate(7deg);
 }
 
 .emotion-encouraging .nova-antenna-dot {
@@ -608,12 +596,12 @@ button {
   animation: nova-ring-pulse 3s ease-in-out infinite;
 }
 
-.mode-idle .nova-arm.left {
-  animation: nova-arm-wave-left 5s ease-in-out infinite;
+.mode-idle .nova-eye-wrap {
+  animation: nova-eye-blink 5.6s infinite;
 }
 
-.mode-idle .nova-arm.right {
-  animation: nova-arm-wave-right 5s ease-in-out infinite 400ms;
+.mode-idle .nova-pupil {
+  animation: nova-idle-gaze 7s ease-in-out infinite;
 }
 
 .mode-listening {
@@ -653,15 +641,15 @@ button {
 
 .mode-listening .nova-eye-wrap.left,
 .mode-listening .nova-eye-wrap.right {
-  transform: translateY(-4px) scale(1.15);
+  transform: translateY(-2px) scale(1.04);
 }
 
-.mode-listening .nova-arm.left {
-  animation: nova-arm-listen-left 1.05s ease-in-out infinite;
+.mode-listening .nova-pupil {
+  transform: translateY(2px);
 }
 
-.mode-listening .nova-arm.right {
-  animation: nova-arm-listen-right 1.05s ease-in-out infinite;
+.mode-listening .pose-listening {
+  animation: nova-listening-pose 1.5s ease-in-out infinite;
 }
 
 .mode-thinking {
@@ -674,6 +662,14 @@ button {
 
 .mode-thinking .nova-face {
   animation: nova-look-around 2.2s ease-in-out infinite;
+}
+
+.mode-thinking .nova-pupil {
+  animation: nova-thinking-gaze 2.4s ease-in-out infinite;
+}
+
+.mode-thinking .pose-thinking {
+  animation: nova-thinking-pose 1.8s ease-in-out infinite;
 }
 
 .mode-thinking .nova-thinking-sparks {
@@ -710,32 +706,17 @@ button {
   opacity: 0;
 }
 
-.mode-speaking .mouth-bars {
+.mode-speaking .mouth-talking {
   opacity: 1;
+  animation: nova-mouth-talk 520ms ease-in-out infinite;
 }
 
-.mode-speaking .mouth-bars rect {
-  animation: nova-talk 640ms ease-in-out infinite;
+.mode-speaking .nova-pupil {
+  animation: nova-speaking-gaze 2.4s ease-in-out infinite;
 }
 
-.mode-speaking .nova-arm.left {
-  animation: nova-arm-talk-left 780ms ease-in-out infinite;
-}
-
-.mode-speaking .nova-arm.right {
-  animation: nova-arm-talk-right 780ms ease-in-out infinite;
-}
-
-.mode-speaking .mouth-bars rect:nth-child(2) {
-  animation-delay: 90ms;
-}
-
-.mode-speaking .mouth-bars rect:nth-child(3) {
-  animation-delay: 170ms;
-}
-
-.mode-speaking .mouth-bars rect:nth-child(4) {
-  animation-delay: 250ms;
+.mode-speaking .pose-speaking {
+  animation: nova-speaking-pose 780ms ease-in-out infinite;
 }
 
 .mode-error {
@@ -763,35 +744,347 @@ button {
   transform: rotate(12deg);
 }
 
+/* Character-first scene */
+.assistant-panel {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto auto auto;
+  margin: 0 auto;
+  max-width: 1040px;
+  padding: clamp(16px, 3vw, 30px) clamp(14px, 4vw, 38px);
+}
+
+.character-stage {
+  align-content: center;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  padding-top: clamp(2px, 1vh, 10px);
+  width: 100%;
+}
+
+.character-dialogue {
+  animation: dialogue-arrive 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid rgba(0, 31, 78, 0.11);
+  border-radius: 30px 30px 30px 10px;
+  box-shadow: 0 18px 42px rgba(0, 31, 78, 0.1);
+  color: var(--camp-navy);
+  justify-self: center;
+  max-width: min(620px, 88vw);
+  padding: 15px 22px;
+  position: relative;
+  transform: rotate(-1deg);
+  z-index: 5;
+}
+
+.character-dialogue::after {
+  background: inherit;
+  border-bottom: 3px solid rgba(0, 31, 78, 0.11);
+  border-right: 3px solid rgba(0, 31, 78, 0.11);
+  bottom: -12px;
+  content: "";
+  height: 22px;
+  left: 28%;
+  position: absolute;
+  transform: rotate(45deg);
+  width: 22px;
+}
+
+.character-dialogue p {
+  display: -webkit-box;
+  font-size: clamp(21px, 3vw, 32px);
+  font-weight: 850;
+  -webkit-line-clamp: 3;
+  line-height: 1.16;
+  margin: 0;
+  max-height: 3.6em;
+  overflow: hidden;
+  text-wrap: balance;
+  -webkit-box-orient: vertical;
+}
+
+.dialogue-listening {
+  border-color: rgba(255, 45, 32, 0.2);
+}
+
+.dialogue-thinking {
+  border-color: rgba(0, 111, 189, 0.2);
+}
+
+.dialogue-speaking {
+  border-color: rgba(114, 191, 19, 0.25);
+}
+
+.dialogue-error {
+  border-color: rgba(255, 45, 32, 0.24);
+}
+
+.nova-character {
+  align-self: center;
+  height: min(70dvh, 760px);
+  min-height: 390px;
+  transform: translateY(-1vh);
+  width: min(96vw, 820px);
+}
+
+.touch-controls {
+  margin-top: clamp(-34px, -3.5vh, -18px);
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+.record-button {
+  background:
+    radial-gradient(circle at 34% 27%, #fff9c8 0 9%, transparent 10%),
+    radial-gradient(circle at 50% 38%, #ffd65c 0 35%, #ffb90f 70%);
+  border: 5px solid rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 22px 48px rgba(255, 115, 0, 0.28),
+    0 0 0 11px rgba(255, 191, 24, 0.16),
+    0 0 45px rgba(255, 191, 24, 0.34),
+    inset 0 -6px 0 rgba(0, 31, 78, 0.12);
+  gap: 7px;
+  min-height: 132px;
+  overflow: visible;
+  position: relative;
+}
+
+.record-button::before,
+.record-button::after {
+  border: 3px solid rgba(255, 191, 24, 0.28);
+  border-radius: 50%;
+  content: "";
+  inset: -18px;
+  pointer-events: none;
+  position: absolute;
+}
+
+.record-button::before {
+  animation: energy-orbit 4s linear infinite;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+
+.record-button::after {
+  animation: energy-orbit 5.5s linear infinite reverse;
+  border-right-color: transparent;
+  inset: -28px;
+  opacity: 0.55;
+}
+
+.record-button .energy-core {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.48);
+  border-radius: 50%;
+  display: flex;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.record-button.recording {
+  background:
+    radial-gradient(circle at 34% 27%, rgba(255, 255, 255, 0.5) 0 9%, transparent 10%),
+    radial-gradient(circle at 50% 38%, #ff695f 0 35%, var(--camp-red) 72%);
+}
+
+.record-button.recording::before,
+.record-button.recording::after {
+  border-color: rgba(255, 45, 32, 0.25);
+  border-bottom-color: transparent;
+}
+
+.record-button:disabled::before,
+.record-button:disabled::after {
+  animation-duration: 1.4s;
+}
+
+.record-button.processing {
+  min-height: 72px;
+  opacity: 0.38;
+  pointer-events: none;
+  transform: scale(0.58);
+  width: 72px;
+}
+
+.record-button.processing .energy-core {
+  opacity: 0.45;
+}
+
+.record-button.processing::before,
+.record-button.processing::after {
+  opacity: 0.25;
+}
+
+.record-button.follow-up {
+  min-height: 108px;
+  width: 108px;
+}
+
+.record-button.follow-up .energy-core {
+  height: 40px;
+  width: 40px;
+}
+
+.conversation-control {
+  align-items: center;
+  animation: dialogue-arrive 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.74);
+  border: 2px solid rgba(0, 31, 78, 0.1);
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(0, 31, 78, 0.09);
+  color: var(--camp-navy);
+  cursor: pointer;
+  display: flex;
+  font-size: clamp(14px, 1.8vw, 17px);
+  font-weight: 850;
+  gap: 7px;
+  padding: 10px 15px;
+  transition:
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.conversation-control:hover {
+  background: rgba(255, 255, 255, 0.96);
+  transform: translateY(-1px);
+}
+
+.stop-speaking {
+  background: rgba(255, 248, 243, 0.78);
+  border-color: rgba(255, 115, 0, 0.16);
+  color: #963c00;
+}
+
+.replay-answer {
+  margin-left: 12px;
+}
+
+.error-message {
+  background: rgba(255, 255, 255, 0.62);
+  border: 0;
+  color: rgba(0, 31, 78, 0.62);
+  font-size: 12px;
+  margin-top: 2px;
+  padding: 6px 10px;
+}
+
+.heard-line {
+  margin-top: 2px;
+}
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.mode-idle .pose-idle {
+  animation: nova-inviting-pose 4.6s ease-in-out infinite;
+}
+
+@keyframes energy-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dialogue-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96) rotate(-1deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(-1deg);
+  }
+}
+
+@keyframes nova-inviting-pose {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(4px) scale(1.02);
+  }
+}
+
+@keyframes nova-listening-pose {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(3deg) translateY(-2px);
+  }
+}
+
+@keyframes nova-thinking-pose {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+
+  50% {
+    transform: rotate(2deg) translateY(-3px);
+  }
+}
+
+@keyframes nova-speaking-pose {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-4px) scale(1.04);
+  }
+}
+
 @media (orientation: landscape) and (min-width: 900px) {
   .assistant-panel {
     padding-bottom: 18px;
   }
 
-  .ambient-label {
-    top: 18px;
+  .character-stage {
+    grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+    grid-template-rows: minmax(0, 1fr);
   }
 
   .nova-character {
-    height: min(58dvh, 540px);
+    grid-column: 2;
+    grid-row: 1;
+    height: min(72dvh, 570px);
     min-height: 340px;
-    transform: translateY(3vh);
+    transform: translate(-2vw, 2vh);
     width: min(66vw, 620px);
   }
 
-  .speech-bubble {
-    bottom: clamp(4px, 1.2vh, 14px);
-    max-width: min(480px, 56vw);
+  .character-dialogue {
+    align-self: center;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: end;
+    max-width: 330px;
+    transform: translate(3vw, -6vh) rotate(-2deg);
   }
 
-  .speech-bubble p {
-    font-size: clamp(18px, 2vw, 24px);
-    -webkit-line-clamp: 2;
-    max-height: 2.7em;
+  .character-dialogue::after {
+    bottom: 24px;
+    left: auto;
+    right: -12px;
+    transform: rotate(-45deg);
   }
 
   .touch-controls {
-    margin-top: -6px;
+    margin-top: -60px;
   }
 
   .record-button {
@@ -799,10 +1092,6 @@ button {
     width: 124px;
   }
 
-  .replay-button {
-    min-height: 64px;
-    width: 64px;
-  }
 }
 
 @media (max-width: 720px) {
@@ -811,18 +1100,18 @@ button {
   }
 
   .nova-character {
-    height: min(68dvh, 560px);
-    min-height: 360px;
-    transform: translateY(3vh);
-    width: min(112vw, 560px);
+    height: min(61dvh, 540px);
+    min-height: 340px;
+    transform: translateY(-1vh);
+    width: min(108vw, 560px);
   }
 
-  .speech-bubble {
-    max-width: 84vw;
-    padding: 14px 16px;
+  .character-dialogue {
+    max-width: 88vw;
+    padding: 13px 17px;
   }
 
-  .speech-bubble p {
+  .character-dialogue p {
     font-size: clamp(18px, 5vw, 24px);
     -webkit-line-clamp: 3;
   }
@@ -836,25 +1125,21 @@ button {
     width: 118px;
   }
 
-  .replay-button {
-    min-height: 64px;
-    width: 64px;
-  }
 }
 
 @media (max-height: 720px) {
-  .ambient-label {
-    top: 10px;
-  }
-
-  .ambient-label p {
-    display: none;
-  }
-
   .nova-character {
-    height: min(70dvh, 500px);
+    height: min(66dvh, 480px);
     min-height: 300px;
-    transform: translateY(5vh);
+    transform: translateY(1vh);
+  }
+
+  .character-dialogue {
+    padding: 10px 16px;
+  }
+
+  .character-dialogue p {
+    font-size: clamp(17px, 2.4vw, 23px);
   }
 
   .record-button {
@@ -1033,6 +1318,73 @@ button {
   94%,
   96% {
     transform: scaleY(0.08);
+  }
+}
+
+@keyframes nova-eye-blink {
+  0%,
+  45%,
+  49%,
+  92%,
+  96%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  47%,
+  94% {
+    transform: scaleY(0.08);
+  }
+}
+
+@keyframes nova-idle-gaze {
+  0%,
+  28%,
+  100% {
+    transform: translate(0, 1px);
+  }
+
+  36%,
+  52% {
+    transform: translate(-3px, 0);
+  }
+
+  66%,
+  82% {
+    transform: translate(2px, 3px);
+  }
+}
+
+@keyframes nova-thinking-gaze {
+  0%,
+  100% {
+    transform: translate(-3px, -4px);
+  }
+
+  50% {
+    transform: translate(3px, -3px);
+  }
+}
+
+@keyframes nova-speaking-gaze {
+  0%,
+  100% {
+    transform: translate(0, 1px);
+  }
+
+  50% {
+    transform: translate(1px, 0);
+  }
+}
+
+@keyframes nova-mouth-talk {
+  0%,
+  100% {
+    transform: scale(1, 0.62);
+  }
+
+  50% {
+    transform: scale(0.92, 0.92);
   }
 }
 

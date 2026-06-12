@@ -40,8 +40,22 @@ export function NovaCharacter({ mode = "idle", emotion = "calm" }) {
 
         <g className="nova-body" filter="url(#nova-shadow)">
           <g className="nova-arms">
-            <path className="nova-arm left" d="M74 146 C49 150 39 169 50 186" />
-            <path className="nova-arm right" d="M186 146 C211 150 221 169 210 186" />
+            <g className="nova-arm-pose pose-idle">
+              <path className="nova-arm left" d="M74 146 C49 150 39 169 50 186" />
+              <path className="nova-arm right" d="M186 146 C211 150 221 169 210 186" />
+            </g>
+            <g className="nova-arm-pose pose-listening">
+              <path className="nova-arm left" d="M74 150 C54 150 44 163 49 178" />
+              <path className="nova-arm right" d="M186 150 C206 150 216 163 211 178" />
+            </g>
+            <g className="nova-arm-pose pose-thinking">
+              <path className="nova-arm left" d="M74 150 C55 157 49 174 59 188" />
+              <path className="nova-arm right" d="M186 150 C203 143 198 126 181 119" />
+            </g>
+            <g className="nova-arm-pose pose-speaking">
+              <path className="nova-arm left" d="M75 151 C55 151 44 147 43 139" />
+              <path className="nova-arm right" d="M185 151 C205 151 216 147 217 139" />
+            </g>
           </g>
           <path
             className="nova-antenna"
@@ -59,12 +73,16 @@ export function NovaCharacter({ mode = "idle", emotion = "calm" }) {
           <g className="nova-face">
             <g className="nova-eyes">
               <g className="nova-eye-wrap left">
-                <path className="nova-eye" d="M101 124 C108 117 117 117 123 124" />
-                <path className="nova-eye-lid" d="M101 124 C108 124 116 124 123 124" />
+                <ellipse className="nova-eye-white" cx="111" cy="126" rx="13" ry="15" />
+                <circle className="nova-pupil" cx="112" cy="128" r="6" />
+                <circle className="nova-eye-shine" cx="109" cy="125" r="2" />
+                <path className="nova-eye-lid" d="M98 126 C105 118 117 118 124 126" />
               </g>
               <g className="nova-eye-wrap right">
-                <path className="nova-eye" d="M137 124 C144 117 153 117 159 124" />
-                <path className="nova-eye-lid" d="M137 124 C144 124 152 124 159 124" />
+                <ellipse className="nova-eye-white" cx="149" cy="126" rx="13" ry="15" />
+                <circle className="nova-pupil" cx="150" cy="128" r="6" />
+                <circle className="nova-eye-shine" cx="147" cy="125" r="2" />
+                <path className="nova-eye-lid" d="M136 126 C143 118 155 118 162 126" />
               </g>
             </g>
             <g className="nova-cheeks">
@@ -73,12 +91,7 @@ export function NovaCharacter({ mode = "idle", emotion = "calm" }) {
             </g>
             <g className="nova-mouth">
               <path className="mouth-smile" d="M108 153 C119 165 141 165 152 153" />
-              <g className="mouth-bars">
-                <rect x="109" y="146" width="8" height="18" rx="4" />
-                <rect x="123" y="139" width="8" height="32" rx="4" />
-                <rect x="137" y="144" width="8" height="22" rx="4" />
-                <rect x="151" y="148" width="8" height="14" rx="4" />
-              </g>
+              <ellipse className="mouth-talking" cx="130" cy="157" rx="14" ry="7" />
             </g>
           </g>
         </g>

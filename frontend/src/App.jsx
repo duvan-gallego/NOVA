@@ -50,6 +50,7 @@ export function App() {
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
+  const [captionIndex, setCaptionIndex] = useState(-1);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const audioRef = useRef(null);
@@ -62,13 +63,23 @@ export function App() {
   const isPlaying = status === "playing";
   const characterMode = error ? "error" : getCharacterMode(status);
   const characterEmotion = error ? "confused" : getCharacterEmotion(status, answer);
-  const answerPreview = getAnswerPreview(answer);
+  const answerSentences = splitAnswerSentences(answer);
+  const dialogueText = getDialogueText({
+    answer,
+    answerSentences,
+    captionIndex,
+    characterMode,
+    error,
+    status,
+    voiceStatus,
+  });
 
   async function startRecording() {
     unlockAudioPlayback();
     setError("");
     setQuestion("");
     setAnswer("");
+    setCaptionIndex(-1);
     revokeAudioUrl();
     setVoiceStatus("Te escucho");
 
@@ -137,9 +148,7 @@ export function App() {
       setAnswer(data.answer);
       const nextAudioUrl = base64ToAudioUrl(data.audio_base64, data.audio_mime_type);
       setAudioUrl(nextAudioUrl);
-      playAudio(nextAudioUrl);
-      setStatus("playing");
-      setVoiceStatus("");
+      playAudio(nextAudioUrl, splitAnswerSentences(data.answer));
     } catch (err) {
       setError(err.message);
       setStatus("idle");
@@ -148,7 +157,7 @@ export function App() {
     }
   }
 
-  function playAudio(url = audioUrl) {
+  function playAudio(url = audioUrl, captions = answerSentences) {
     if (!url) return;
 
     const audio = audioRef.current;
@@ -157,10 +166,22 @@ export function App() {
     audio.src = url;
     audio.muted = false;
     audio.currentTime = 0;
+    setCaptionIndex(0);
+    setStatus("playing");
+    setVoiceStatus("");
+    audio.ontimeupdate = () => {
+      if (!captions.length || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
+      const progress = Math.min(audio.currentTime / audio.duration, 0.999);
+      setCaptionIndex(Math.floor(progress * captions.length));
+    };
     audio.onended = () => {
+      audio.ontimeupdate = null;
+      setCaptionIndex(-1);
       setStatus("idle");
     };
     audio.play().catch(() => {
+      audio.ontimeupdate = null;
+      setCaptionIndex(-1);
       setStatus("idle");
       setVoiceStatus("Toca reproducir");
     });
@@ -170,10 +191,12 @@ export function App() {
     const audio = audioRef.current;
     if (audio) {
       audio.onended = null;
+      audio.ontimeupdate = null;
       audio.pause();
       audio.currentTime = 0;
     }
 
+    setCaptionIndex(-1);
     setStatus("idle");
     setVoiceStatus("");
   }
@@ -287,63 +310,61 @@ export function App() {
         <audio ref={audioRef} preload="auto" playsInline />
 
         <div className="character-stage">
-          <div className="ambient-label">
-            <h1>NOVA</h1>
-            <strong>Curiosity Lab</strong>
-            <p aria-live="polite">{voiceStatus || statusLabel(characterMode)}</p>
+          <div
+            className={`character-dialogue dialogue-${characterMode}`}
+            key={isPlaying ? `${characterMode}-${captionIndex}` : characterMode}
+            aria-live="polite"
+          >
+            <p>{dialogueText}</p>
           </div>
 
           <NovaCharacter mode={characterMode} emotion={characterEmotion} />
-
-          {answerPreview && !error && (
-            <div className="speech-bubble">
-              <p>{answerPreview}</p>
-            </div>
-          )}
         </div>
 
         <div className="touch-controls">
-          <button
-            className={`record-button ${isRecording ? "recording" : ""}`}
-            onClick={isRecording ? stopRecording : startRecording}
-            disabled={isProcessing}
-            aria-label={buttonLabel(status)}
-            type="button"
-          >
-            {isRecording ? <Square size={32} fill="currentColor" /> : <Mic size={36} />}
-            <span>{buttonLabel(status)}</span>
-          </button>
-
-          {audioUrl && (
+          {!isPlaying && (
             <button
-              className={`replay-button ${isPlaying ? "stop-audio" : ""}`}
-              onClick={isPlaying ? stopAudioPlayback : () => playAudio()}
+              className={`record-button ${isRecording ? "recording" : ""} ${isProcessing ? "processing" : ""} ${answer && status === "idle" ? "follow-up" : ""}`}
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={isProcessing}
+              aria-label={buttonLabel(status)}
               type="button"
-              title={isPlaying ? "Detener respuesta" : "Reproducir respuesta"}
-              aria-label={isPlaying ? "Detener respuesta" : "Reproducir respuesta"}
             >
-              {isPlaying ? <Square size={22} fill="currentColor" /> : <Play size={22} fill="currentColor" />}
+              <span className="energy-core" aria-hidden="true">
+                {isRecording ? <Square size={28} fill="currentColor" /> : <Mic size={34} />}
+              </span>
+              {!isProcessing && <span>{buttonLabel(status)}</span>}
+            </button>
+          )}
+
+          {isPlaying && (
+            <button className="conversation-control stop-speaking" onClick={stopAudioPlayback} type="button">
+              <Square size={14} fill="currentColor" />
+              <span>Pausa</span>
+            </button>
+          )}
+
+          {audioUrl && !isPlaying && !isProcessing && (
+            <button className="conversation-control replay-answer" onClick={() => playAudio()} type="button">
+              <Play size={15} fill="currentColor" />
+              <span>¿Otra vez?</span>
             </button>
           )}
         </div>
 
         {error && <p className="error-message">{error}</p>}
 
-        {question && (
-          <p className="heard-line">
-            <span>Me preguntaste:</span> {question}
-          </p>
-        )}
+        {question && <span className="visually-hidden">Me preguntaste: {question}</span>}
       </section>
     </main>
   );
 }
 
 function buttonLabel(status) {
-  if (status === "recording") return "Detener";
+  if (status === "recording") return "Listo";
   if (status === "processing") return "Pensando";
-  if (status === "playing") return "¡Ya sé!";
-  return "Hablar";
+  if (status === "playing") return "Escucha";
+  return "Cuéntame";
 }
 
 function getCharacterMode(status) {
@@ -361,25 +382,42 @@ function getCharacterEmotion(status, answer) {
   return "calm";
 }
 
-function statusLabel(mode) {
-  if (mode === "listening") return "Te escucho";
-  if (mode === "thinking") return "Pensando";
-  if (mode === "speaking") return "¡Ya sé!";
-  if (mode === "error") return "Ups, intentemos otra vez";
-  return "Toca y pregunta";
+function characterLine(mode) {
+  if (mode === "listening") return "¡Te escucho! Cuéntame tu pregunta.";
+  if (mode === "thinking") return "Déjame imaginarlo...";
+  if (mode === "speaking") return "¡Mira lo que descubrí!";
+  if (mode === "error") return "Uy, no te escuché bien. ¿Otra vez?";
+  return "¡Hola! ¿Qué quieres descubrir hoy?";
 }
 
-function getAnswerPreview(text) {
-  if (!text) return "";
+function splitAnswerSentences(text) {
+  if (!text) return [];
+  return (
+    text
+      .replace(/\s+/g, " ")
+      .trim()
+      .match(/[^.!?]+[.!?]*/g)
+      ?.map((sentence) => sentence.trim())
+      .filter(Boolean) ?? [text]
+  );
+}
 
-  const sentences = text
-    .replace(/\s+/g, " ")
-    .trim()
-    .match(/[^.!?¡¿]+[.!?]*/g);
-  const preview = (sentences ?? [text]).slice(0, 2).join(" ").trim();
-
-  if (preview.length <= 170) return preview;
-  return `${preview.slice(0, 167).trim()}...`;
+function getDialogueText({
+  answer,
+  answerSentences,
+  captionIndex,
+  characterMode,
+  error,
+  status,
+  voiceStatus,
+}) {
+  if (error) return characterLine("error");
+  if (status === "playing" && answerSentences.length) {
+    return answerSentences[Math.max(0, captionIndex)] ?? answerSentences[0];
+  }
+  if (voiceStatus) return voiceStatus;
+  if (answer && status === "idle") return "¿Quieres saber algo más?";
+  return characterLine(characterMode);
 }
 
 function getRecorderOptions() {
