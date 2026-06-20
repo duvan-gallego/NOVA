@@ -110,11 +110,11 @@ export function NovaCharacter({ mode = "idle", emotion = "calm", dialogueGlance 
         <g className="nova-rocket">
           <g className="rocket-exhaust">
             <path className="rocket-flame-bridge" d="M196 51 L205 60" />
-            <path className="rocket-flame" d="M197 52 C193 57 187 64 184 72 C190 68 197 65 204 59 Z" />
-            <path className="rocket-flame-core" d="M198 55 C194 59 190 64 188 68 C192 65 197 62 201 58 Z" />
+            <path className="rocket-flame" d="M197 52 C192 57 186 65 181 75 C189 70 198 65 204 59 Z" />
+            <path className="rocket-flame-core" d="M198 55 C194 59 188 66 185 71 C191 67 197 63 201 58 Z" />
           </g>
           <path className="rocket-body" d="M197 44 C209 22 228 17 237 18 C238 28 233 47 211 58 Z" />
-          <path className="rocket-base" d="M197 44 L183 52 L194 58 L197 61 L203 72 L211 58 Z" />
+          <path className="rocket-base" d="M197 44 L186 52 L195 57 L198 60 L203 69 L211 58 Z" />
           <path className="rocket-window" d="M219 34 A7 7 0 1 0 219 48 A7 7 0 1 0 219 34" />
         </g>
 
