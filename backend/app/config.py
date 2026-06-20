@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     llm_model: str = "google/gemma-4-26b-a4b"
     llm_max_tokens: int = Field(default=512, ge=32)
     llm_reasoning_effort: str = "none"
+    vision_max_image_bytes: int = Field(default=5 * 1024 * 1024, ge=1024)
 
     kokoro_lang_code: str = "e"
     kokoro_voice: str = "ef_dora"

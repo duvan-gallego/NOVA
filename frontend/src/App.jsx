@@ -1,9 +1,11 @@
-import { Play } from "lucide-react";
+import { Camera, Play, X } from "lucide-react";
 import React from "react";
 import { useRef, useState } from "react";
 import { NovaCharacter } from "./components/NovaCharacter.jsx";
 
 const API_URL = (import.meta.env.VITE_NOVA_API_URL ?? "").replace(/\/$/, "");
+const MAX_SOURCE_IMAGE_BYTES = 15 * 1024 * 1024;
+const MAX_IMAGE_DIMENSION = 1600;
 const SILENT_AUDIO_URL =
   "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
 const THINKING_AUDIO_URLS = [
@@ -50,10 +52,13 @@ export function App() {
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState("");
   const [captionIndex, setCaptionIndex] = useState(-1);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
   const audioRef = useRef(null);
+  const imageInputRef = useRef(null);
   const lastThinkingIndexRef = useRef(-1);
   const lastRecordingIndexRef = useRef(-1);
   const lastRetryIndexRef = useRef(-1);
@@ -132,6 +137,9 @@ export function App() {
     const extension = mimeType.includes("mp4") ? "mp4" : "webm";
     const formData = new FormData();
     formData.append("audio", blob, `question.${extension}`);
+    if (imageFile) {
+      formData.append("image", imageFile, imageFile.name);
+    }
 
     try {
       const response = await fetch(`${API_URL}/ask`, {
@@ -145,6 +153,7 @@ export function App() {
       }
 
       const data = await response.json();
+      clearSelectedImage();
       setQuestion(data.question);
       setAnswer(data.answer);
       const nextAudioUrl = base64ToAudioUrl(data.audio_base64, data.audio_mime_type);
@@ -305,6 +314,37 @@ export function App() {
       });
   }
 
+  async function selectImage(event) {
+    const sourceFile = event.target.files?.[0];
+    if (!sourceFile) return;
+
+    setError("");
+    try {
+      if (!sourceFile.type.startsWith("image/")) {
+        throw new Error("Elige una foto para mostrarsela a NOVA.");
+      }
+      if (sourceFile.size > MAX_SOURCE_IMAGE_BYTES) {
+        throw new Error("Esa foto es demasiado grande. Elige una de menos de 15 MB.");
+      }
+
+      const compressedFile = await compressImage(sourceFile);
+      if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+      setImageFile(compressedFile);
+      setImagePreviewUrl(URL.createObjectURL(compressedFile));
+      setVoiceStatus("Foto lista. Ahora cuentame que quieres descubrir.");
+    } catch (err) {
+      setError(err?.message ?? "No pude preparar esa foto.");
+      event.target.value = "";
+    }
+  }
+
+  function clearSelectedImage() {
+    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    setImageFile(null);
+    setImagePreviewUrl("");
+    if (imageInputRef.current) imageInputRef.current.value = "";
+  }
+
   return (
     <main className="app-shell">
       <section className="assistant-panel" aria-label="NOVA">
@@ -336,6 +376,41 @@ export function App() {
         </div>
 
         <div className="touch-controls">
+          {imagePreviewUrl ? (
+            <div className="image-chip">
+              <img src={imagePreviewUrl} alt="Foto lista para mostrarle a NOVA" />
+              <button
+                className="remove-image"
+                onClick={() => {
+                  clearSelectedImage();
+                  setVoiceStatus("");
+                }}
+                disabled={isRecording || isProcessing}
+                aria-label="Quitar foto"
+                type="button"
+              >
+                <X size={16} strokeWidth={3} />
+              </button>
+            </div>
+          ) : (
+            <button
+              className="conversation-control show-image"
+              onClick={() => imageInputRef.current?.click()}
+              disabled={isRecording || isProcessing || isPlaying}
+              type="button"
+            >
+              <Camera size={17} />
+              <span>Mostrar algo</span>
+            </button>
+          )}
+          <input
+            ref={imageInputRef}
+            className="visually-hidden"
+            type="file"
+            accept="image/*"
+            onChange={selectImage}
+            tabIndex={-1}
+          />
           {audioUrl && !isPlaying && !isProcessing && (
             <button className="conversation-control replay-answer" onClick={() => playAudio()} type="button">
               <Play size={15} fill="currentColor" />
@@ -489,4 +564,48 @@ function normalizeSpeech(text) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
+}
+
+async function compressImage(file) {
+  const sourceUrl = URL.createObjectURL(file);
+  try {
+    const image = await loadImage(sourceUrl);
+    const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(image.naturalWidth, image.naturalHeight));
+    const width = Math.max(1, Math.round(image.naturalWidth * scale));
+    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Este navegador no pudo preparar la foto.");
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+
+    const blob = await canvasToBlob(canvas, "image/jpeg", 0.84);
+    const baseName = file.name.replace(/\.[^.]+$/, "") || "foto";
+    return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
+  } finally {
+    URL.revokeObjectURL(sourceUrl);
+  }
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("No pude abrir esa foto. Elige otra e intenta de nuevo."));
+    image.src = url;
+  });
+}
+
+function canvasToBlob(canvas, type, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("No pude comprimir esa foto."))),
+      type,
+      quality,
+    );
+  });
 }

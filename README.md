@@ -4,8 +4,8 @@ NOVA is a local-first assistant MVP for answering kids' spoken questions in Span
 
 The first loop is intentionally small:
 
-1. A React app records a question from the microphone.
-2. The browser sends the audio to a FastAPI backend.
+1. A React app records a question from the microphone and can optionally attach one photo.
+2. The browser compresses the photo locally and sends it with the audio to a FastAPI backend.
 3. The backend transcribes the audio with a local Spanish speech-to-text adapter.
 4. The backend asks a local LLM for a kid-friendly Spanish answer.
 5. The backend turns the answer into Spanish audio and returns it to the browser.
@@ -85,11 +85,18 @@ NOVA_OPENAI_API_KEY=
 NOVA_LLM_MODEL=google/gemma-4-26b-a4b
 NOVA_LLM_MAX_TOKENS=512
 NOVA_LLM_REASONING_EFFORT=none
+NOVA_VISION_MAX_IMAGE_BYTES=5242880
 NOVA_KOKORO_LANG_CODE=e
 NOVA_KOKORO_VOICE=ef_dora
 ```
 
 `es-419` means neutral Latin American Spanish.
+
+## Vision
+
+Tap `Mostrar algo` to take or choose a photo, then tap NOVA and ask a spoken question about it. The browser resizes the image before uploading it. NOVA sends it to the configured model with the question, then removes it from the interface after the answer. Images are not saved to disk or conversation memory.
+
+The configured model and its OpenAI-compatible server must accept multimodal chat content using an `image_url` data URL. JPEG, PNG, and WebP uploads are accepted; the backend limit defaults to 5 MB.
 
 ## Memory
 

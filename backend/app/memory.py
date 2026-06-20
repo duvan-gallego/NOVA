@@ -117,13 +117,14 @@ class MemoryStore:
 
         return clean_turns
 
-    def save_interaction(self, question: str, answer: str) -> None:
+    def save_interaction(self, question: str, answer: str, has_image: bool = False) -> None:
         memory = self.read()
         interactions = memory.setdefault("recent_interactions", [])
         interactions.append(
             {
                 "question": question,
                 "answer": answer,
+                "has_image": has_image,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }
         )

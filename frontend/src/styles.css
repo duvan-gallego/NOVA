@@ -510,17 +510,31 @@ button {
   stroke-width: 3;
 }
 
-.rocket-fin {
+.rocket-base {
   fill: var(--camp-red);
   stroke: var(--camp-navy);
   stroke-linejoin: round;
   stroke-width: 3.5;
 }
 
-.rocket-flame {
+.rocket-exhaust {
   animation: flame-flicker 520ms ease-in-out infinite;
+  transform-origin: 200px 58px;
+}
+
+.rocket-flame {
   fill: var(--camp-orange);
-  transform-origin: 213px 71px;
+}
+
+.rocket-flame-bridge {
+  fill: none;
+  stroke: var(--camp-orange);
+  stroke-linecap: round;
+  stroke-width: 8;
+}
+
+.rocket-flame-core {
+  fill: var(--camp-yellow);
 }
 
 .emotion-confused .nova-eye-wrap.left {
@@ -879,6 +893,59 @@ button {
   transform: translateY(-1px);
 }
 
+.conversation-control:disabled {
+  cursor: default;
+  opacity: 0.48;
+  transform: none;
+}
+
+.show-image {
+  border-color: rgba(24, 168, 197, 0.22);
+  color: var(--camp-blue);
+}
+
+.image-chip {
+  animation: dialogue-arrive 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(255, 255, 255, 0.88);
+  border: 3px solid rgba(24, 168, 197, 0.28);
+  border-radius: 17px;
+  box-shadow: 0 10px 24px rgba(0, 31, 78, 0.11);
+  height: 58px;
+  padding: 3px;
+  position: relative;
+  width: 72px;
+}
+
+.image-chip img {
+  border-radius: 11px;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.remove-image {
+  align-items: center;
+  background: var(--camp-navy);
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  height: 26px;
+  justify-content: center;
+  padding: 0;
+  position: absolute;
+  right: -9px;
+  top: -9px;
+  width: 26px;
+}
+
+.remove-image:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
 .stop-speaking {
   background: rgba(255, 248, 243, 0.78);
   border-color: rgba(255, 115, 0, 0.16);
@@ -1174,6 +1241,10 @@ button {
 
   .touch-controls {
     gap: 10px;
+  }
+
+  .conversation-control {
+    padding: 9px 12px;
   }
 
 }
@@ -1544,11 +1615,11 @@ button {
 @keyframes flame-flicker {
   0%,
   100% {
-    transform: scale(0.95);
+    transform: scale(0.96);
   }
 
   50% {
-    transform: scale(1.12);
+    transform: scale(1.04);
   }
 }
 

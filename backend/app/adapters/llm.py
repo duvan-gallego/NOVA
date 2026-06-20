@@ -1,11 +1,14 @@
+from __future__ import annotations
+
+import base64
 import json
-from typing import Optional
+from typing import Any, Optional
 from urllib import request
 from urllib.error import HTTPError, URLError
 
 from app.config import Settings
 
-ChatMessage = dict[str, str]
+ChatMessage = dict[str, Any]
 
 
 class LLMAdapter:
@@ -14,6 +17,8 @@ class LLMAdapter:
         question: str,
         memory_context: str = "",
         conversation: Optional[list[ChatMessage]] = None,
+        image_bytes: bytes | None = None,
+        image_mime_type: str | None = None,
     ) -> str:
         raise NotImplementedError
 
@@ -27,11 +32,22 @@ class OpenAICompatibleLLM(LLMAdapter):
         question: str,
         memory_context: str = "",
         conversation: Optional[list[ChatMessage]] = None,
+        image_bytes: bytes | None = None,
+        image_mime_type: str | None = None,
     ) -> str:
         system_prompt = self._build_system_prompt(memory_context)
         messages = [{"role": "system", "content": system_prompt}]
         messages.extend(conversation or [])
-        messages.append({"role": "user", "content": question})
+        messages.append(
+            {
+                "role": "user",
+                "content": self._build_user_content(
+                    question,
+                    image_bytes=image_bytes,
+                    image_mime_type=image_mime_type,
+                ),
+            }
+        )
 
         payload = json.dumps(
             {
@@ -78,6 +94,27 @@ class OpenAICompatibleLLM(LLMAdapter):
             raise RuntimeError("El modelo local no devolvio una respuesta.")
         return answer
 
+    @staticmethod
+    def _build_user_content(
+        question: str,
+        image_bytes: bytes | None = None,
+        image_mime_type: str | None = None,
+    ) -> str | list[dict[str, Any]]:
+        if not image_bytes:
+            return question
+
+        mime_type = image_mime_type or "image/jpeg"
+        encoded_image = base64.b64encode(image_bytes).decode("ascii")
+        return [
+            {"type": "text", "text": question},
+            {
+                "type": "image_url",
+                "image_url": {
+                    "url": f"data:{mime_type};base64,{encoded_image}",
+                },
+            },
+        ]
+
     def _build_system_prompt(self, memory_context: str = "") -> str:
         prompt = """
 You are NOVA, Navigation and Observation Virtual Assistant.
@@ -92,6 +129,13 @@ Core identity:
 - Use the local memory context when provided. Treat it as the source of truth for family details, children, preferences, facts, recent interactions, and current mission context.
 - Do not invent missing family, child, or mission details.
 - All your answers will be transformed to audio so, avoid including special characters like "*" and emojis in them
+
+Vision:
+- When a child includes an image, use it together with their question.
+- Describe only details that are reasonably visible. If an image is blurry, incomplete, or ambiguous, say so briefly and ask for a clearer view or another angle.
+- Do not identify real people, guess who they are, or infer sensitive traits, health, emotions, or intentions from their appearance.
+- Never claim that something is visible when it is not. Separate observations from guesses.
+- Encourage careful observation with one short question when it fits naturally.
 
 Language:
 - Always answer in natural Spanish.
