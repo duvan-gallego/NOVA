@@ -1,5 +1,8 @@
 # NOVA
 
+<img width="1720" height="1330" alt="image" src="https://github.com/user-attachments/assets/04a82d41-9e81-4b59-86c7-5e78d80a5f5b" />
+
+
 NOVA is a local-first assistant MVP for answering kids' spoken questions in Spanish.
 
 The first loop is intentionally small:
