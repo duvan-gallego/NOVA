@@ -8,20 +8,15 @@ from app.config import Settings
 
 DEFAULT_MEMORY: dict[str, Any] = {
     "family": {
-        "name": "Gallego Henao",
-        "notes": "NOVA is the official AI companion of the Curiosity Lab – Gallego Henao Family STEM Summer Camp.",
+        "name": "",
+        "notes": "",
     },
     "children": [
         {
-            "name": "Samuel",
-            "age": 10,
-            "notes": "Intelligent, curious, creative, and enjoys hands-on activities, puzzles, experiments, inventions, engineering challenges, space exploration, robots, and discovering how things work.",
-        },
-        {
-            "name": "Sara-Maria",
-            "age": 8,
-            "notes": "Intelligent, curious, creative, and enjoys hands-on activities, puzzles, experiments, inventions, engineering challenges, space exploration, robots, and discovering how things work.",
-        },
+            "name": "",
+            "age": 0,
+            "notes": "",
+        }        
     ],
     "preferences": {
         "language": "Spanish",
